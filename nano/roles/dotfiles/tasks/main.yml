@@ -62,3 +62,16 @@
     src: kde/kglobalshortcutsrc
     dest: "{{ target_user_home }}/.config/kglobalshortcutsrc"
     mode: '0600'
+
+# --- Antigravity / Gemini MCP Config ---
+- name: Ensure ~/.gemini/config directory exists
+  ansible.builtin.file:
+    path: "{{ target_user_home }}/.gemini/config"
+    state: directory
+    mode: '0755'
+
+- name: Deploy Antigravity MCP Server Config (mcp_config.json)
+  ansible.builtin.copy:
+    src: gemini/mcp_config.json
+    dest: "{{ target_user_home }}/.gemini/config/mcp_config.json"
+    mode: '0600'
