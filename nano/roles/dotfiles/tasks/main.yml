@@ -1,0 +1,64 @@
+---
+- name: Ensure config & dotfile directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ target_user_home }}/.config"
+    - "{{ target_user_home }}/.config/rclone"
+    - "{{ target_user_home }}/.config/yt-dlp"
+    - "{{ target_user_home }}/.config/qimgv"
+    - "{{ target_user_home }}/.local/share/konsole"
+    - "{{ target_user_home }}/.config/sublime-text/3/Packages/User"
+
+- name: Ensure ~/.ssh directory exists with secure permissions
+  ansible.builtin.file:
+    path: "{{ target_user_home }}/.ssh"
+    state: directory
+    mode: '0700'
+
+# --- Shell Dotfiles ---
+- name: Deploy .bashrc
+  ansible.builtin.template:
+    src: bashrc.j2
+    dest: "{{ target_user_home }}/.bashrc"
+    mode: '0644'
+
+- name: Deploy .profile
+  ansible.builtin.template:
+    src: profile.j2
+    dest: "{{ target_user_home }}/.profile"
+    mode: '0644'
+
+# --- Konsole Settings & Custom Profiles ---
+- name: Deploy Konsole main config (konsolerc)
+  ansible.builtin.copy:
+    src: konsole/konsolerc
+    dest: "{{ target_user_home }}/.config/konsolerc"
+    mode: '0600'
+
+- name: Deploy Konsole custom profiles (MyProfile.profile)
+  ansible.builtin.copy:
+    src: konsole/MyProfile.profile
+    dest: "{{ target_user_home }}/.local/share/konsole/MyProfile.profile"
+    mode: '0600'
+
+# --- KDE Plasma Configurations ---
+- name: Deploy KDE globals (kdeglobals)
+  ansible.builtin.copy:
+    src: kde/kdeglobals
+    dest: "{{ target_user_home }}/.config/kdeglobals"
+    mode: '0600'
+
+- name: Deploy KDE window manager config (kwinrc)
+  ansible.builtin.copy:
+    src: kde/kwinrc
+    dest: "{{ target_user_home }}/.config/kwinrc"
+    mode: '0600'
+
+- name: Deploy KDE global shortcuts (kglobalshortcutsrc)
+  ansible.builtin.copy:
+    src: kde/kglobalshortcutsrc
+    dest: "{{ target_user_home }}/.config/kglobalshortcutsrc"
+    mode: '0600'

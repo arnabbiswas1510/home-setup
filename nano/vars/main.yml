@@ -1,0 +1,59 @@
+---
+# Central variables for system state reproduction
+
+target_user: "{{ ansible_user_id | default('pom') }}"
+target_user_home: "/home/{{ target_user }}"
+
+# Curated minimal APT packages (essential tools, non-bloatware)
+apt_packages:
+  - build-essential
+  - curl
+  - wget
+  - git
+  - zsh
+  - lsof
+  - rclone
+  - snapper
+  - btrfs-progs
+  - wl-clipboard
+  - qimgv
+  - feh
+  - flatpak
+  - dkms
+  - ca-certificates
+  - gpg
+  - apt-transport-https
+
+# Third-party APT repositories & packages
+third_party_packages:
+  - google-chrome-stable
+  - sublime-text
+  - tailscale
+  - syncthing
+
+# Active Flatpak applications
+flatpak_apps:
+  - com.logseq.Logseq
+  - com.github.johnfactotum.Foliate
+  - com.github.dynobo.normcap
+  - com.rcloneui.RcloneUI
+  - com.rtosta.zapzap
+  - info.smplayer.SMPlayer
+  - io.mpv.Mpv
+  - org.avidemux.Avidemux
+  - org.jellyfin.JellyfinDesktop
+  - org.kde.falkon
+  - tv.plex.PlexDesktop
+  - us.zoom.Zoom
+
+# System services to enable and start
+system_services:
+  - tailscale
+  - syncthing
+
+# User tools installed directly into ~/.local/bin
+local_bin_dir: "{{ target_user_home }}/.local/bin"
+
+# CLI tool URLs
+ytdlp_url: "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp"
+deno_install_url: "https://deno.land/install.sh"

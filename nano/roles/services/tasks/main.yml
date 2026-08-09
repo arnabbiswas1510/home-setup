@@ -1,0 +1,17 @@
+---
+- name: Enable and start system services (Tailscale)
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  loop: "{{ system_services }}"
+  become: true
+  ignore_errors: true
+
+- name: Enable Syncthing user service for target user
+  ansible.builtin.systemd:
+    name: "syncthing@{{ target_user }}"
+    enabled: yes
+    state: started
+  become: true
+  ignore_errors: true

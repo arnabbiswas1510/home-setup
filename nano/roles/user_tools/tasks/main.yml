@@ -1,0 +1,18 @@
+---
+- name: Ensure ~/.local/bin directory exists
+  ansible.builtin.file:
+    path: "{{ local_bin_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Download yt-dlp binary
+  ansible.builtin.get_url:
+    url: "{{ ytdlp_url }}"
+    dest: "{{ local_bin_dir }}/yt-dlp"
+    mode: '0755'
+
+- name: Install Deno runtime if not present
+  ansible.builtin.shell: |
+    curl -fsSL {{ deno_install_url }} | sh
+  args:
+    creates: "{{ target_user_home }}/.deno/bin/deno"
