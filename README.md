@@ -1,4 +1,4 @@
-# Multi-Machine System State Ansible Repository
+# Multi-Machine System State Ansible Repository (home-setup)
 
 Centralized multi-machine Ansible repository for maintaining and reproducing exact machine configurations across all your computers (`nano`, `dietpi`, etc.).
 
@@ -9,7 +9,7 @@ Centralized multi-machine Ansible repository for maintaining and reproducing exa
 Each machine has a dedicated folder at the root named after its hostname containing its own Ansible environment, package lists, roles, and dotfiles:
 
 ```text
-system-ansible/
+home-setup/
 ├── README.md                # Multi-machine repository documentation
 ├── nano/                    # Machine: "Nano" (Debian 13 Workstation)
 │   ├── setup_system.yml     # Main entrypoint for Nano
@@ -25,7 +25,8 @@ system-ansible/
 │       └── dotfiles/        # Dotfiles, Konsole profiles & KDE Plasma configs
 │           └── files/
 │               ├── konsole/ # konsolerc & MyProfile.profile
-│               └── kde/     # kdeglobals, kwinrc, kglobalshortcutsrc
+│               ├── kde/     # kdeglobals, kwinrc, kglobalshortcutsrc
+│               └── gemini/  # mcp_config.json (Antigravity MCP servers)
 │
 └── <other-machine>/         # Future machine configuration (e.g. dietpi, laptop, etc.)
     └── setup_system.yml
@@ -42,8 +43,8 @@ To reproduce a specific machine's setup on a fresh vanilla system:
 sudo apt update && sudo apt install -y ansible git
 
 # 2. Clone this repository
-git clone <your-repo-url> ~/system-ansible
-cd ~/system-ansible
+git clone git@github.com:arnabbiswas1510/home-setup.git ~/home-setup
+cd ~/home-setup
 
 # 3. Navigate to the machine's directory and run setup_system.yml
 cd nano
