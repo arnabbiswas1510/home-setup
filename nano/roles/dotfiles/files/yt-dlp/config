@@ -1,0 +1,41 @@
+# yt-dlp configuration file
+# Saved at ~/.config/yt-dlp/config
+
+# ------------------------------------------------------------------------------
+# Download Location and Filename Template
+# ------------------------------------------------------------------------------
+-o "~/Downloads/YouTube/%(playlist_title,uploader)s/%(title)s [%(id)s].%(ext)s"
+
+# ------------------------------------------------------------------------------
+# Format Selection (Flexible format selector: gets best video and audio)
+# ------------------------------------------------------------------------------
+-f "bestvideo+bestaudio/best"
+--merge-output-format mp4
+
+# ------------------------------------------------------------------------------
+# Speed & Acceleration using aria2c
+# (Uncomment after running: sudo apt install aria2)
+# ------------------------------------------------------------------------------
+# --external-downloader aria2c
+# --external-downloader-args "aria2c:-j 16 -x 16 -s 16 -k 1M"
+
+# ------------------------------------------------------------------------------
+# Archive (Prevents re-downloading previously fetched videos)
+# ------------------------------------------------------------------------------
+--download-archive ~/.config/yt-dlp/archive.txt
+
+# ------------------------------------------------------------------------------
+# Browser Cookies for Authentication
+# ------------------------------------------------------------------------------
+--cookies-from-browser firefox
+
+# ------------------------------------------------------------------------------
+# Subtitles and Metadata
+# ------------------------------------------------------------------------------
+--add-metadata
+--embed-thumbnail
+
+# ------------------------------------------------------------------------------
+# Error handling
+# ------------------------------------------------------------------------------
+--ignore-errors

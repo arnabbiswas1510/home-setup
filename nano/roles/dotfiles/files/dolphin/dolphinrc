@@ -1,0 +1,22 @@
+[CompactMode]
+PreviewSize=64
+
+[General]
+Version=202
+ViewPropsTimestamp=2026,8,5,9,53,46.499
+
+[IconsMode]
+PreviewSize=128
+
+[KFileDialog Settings]
+Places Icons Auto-resize=false
+Places Icons Static Size=22
+
+[MainWindow]
+MenuBar=Disabled
+
+[PreviewSettings]
+Plugins=ffmpegthumbnailer,appimagethumbnail,evince,audiothumbnail,blenderthumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,gsf-office,mobithumbnail,opendocumentthumbnail,atril,gsthumbnail,rawthumbnail,totem,svgthumbnail,ffmpegthumbs,webarchivethumbnail,gdk-pixbuf-thumbnailer,gnome-font-viewer
+
+[ViewPropertiesDialog]
+ShowPreviews=true

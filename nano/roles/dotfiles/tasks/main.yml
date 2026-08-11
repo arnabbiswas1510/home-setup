@@ -77,6 +77,37 @@
     dest: "{{ target_user_home }}/.local/bin/iptvnator"
     mode: '0755'
 
+# --- Application Configurations (yt-dlp, qimgv, spectacle, dolphin, mimeapps) ---
+- name: Deploy yt-dlp configuration
+  ansible.builtin.copy:
+    src: yt-dlp/config
+    dest: "{{ target_user_home }}/.config/yt-dlp/config"
+    mode: '0644'
+
+- name: Deploy qimgv configuration (qimgv.conf)
+  ansible.builtin.copy:
+    src: qimgv/qimgv.conf
+    dest: "{{ target_user_home }}/.config/qimgv/qimgv.conf"
+    mode: '0600'
+
+- name: Deploy Spectacle screenshot config (spectaclerc)
+  ansible.builtin.copy:
+    src: spectacle/spectaclerc
+    dest: "{{ target_user_home }}/.config/spectaclerc"
+    mode: '0600'
+
+- name: Deploy Dolphin file manager config (dolphinrc)
+  ansible.builtin.copy:
+    src: dolphin/dolphinrc
+    dest: "{{ target_user_home }}/.config/dolphinrc"
+    mode: '0600'
+
+- name: Deploy XDG Default Applications (mimeapps.list)
+  ansible.builtin.copy:
+    src: mimeapps/mimeapps.list
+    dest: "{{ target_user_home }}/.config/mimeapps.list"
+    mode: '0644'
+
 # --- Antigravity / Gemini MCP Config ---
 - name: Ensure ~/.gemini/config directory exists
   ansible.builtin.file:

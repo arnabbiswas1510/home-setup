@@ -1,0 +1,20 @@
+[Added Associations]
+image/jpeg=qimgv.desktop;feh.desktop;org.kde.gwenview.desktop;org.gnome.Loupe.desktop;display-im7.q16.desktop;okularApplication_kimgio.desktop;org.xfce.ristretto.desktop;firefox-esr.desktop;org.gnome.Shotwell-Viewer.desktop;com.google.Chrome.desktop;gimp.desktop;lximage-qt.desktop;google-chrome.desktop;
+video/mp4=info.smplayer.SMPlayer.desktop;org.kde.dragonplayer.desktop;org.gnome.Totem.desktop;io.mpv.Mpv.desktop;
+video/vnd.avi=info.smplayer.SMPlayer.desktop;org.kde.dragonplayer.desktop;org.gnome.Totem.desktop;io.mpv.Mpv.desktop;
+x-scheme-handler/http=firefox-esr.desktop;
+x-scheme-handler/https=firefox-esr.desktop;
+
+[Default Applications]
+application/msword=google-chrome.desktop
+application/vnd.ms-excel=google-chrome.desktop
+application/vnd.ms-powerpoint=google-chrome.desktop
+application/vnd.openxmlformats-officedocument.presentationml.presentation=google-chrome.desktop
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=google-chrome.desktop
+application/vnd.openxmlformats-officedocument.wordprocessingml.document=google-chrome.desktop
+image/jpeg=qimgv.desktop;
+text/html=google-chrome.desktop
+video/mp4=info.smplayer.SMPlayer.desktop;
+video/vnd.avi=info.smplayer.SMPlayer.desktop;
+x-scheme-handler/http=google-chrome.desktop
+x-scheme-handler/https=google-chrome.desktop

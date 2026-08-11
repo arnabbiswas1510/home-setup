@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Script to auto-download new videos from configured YouTube playlists/URLs
+
+PLAYLIST_FILE="$HOME/.config/yt-dlp/playlists.txt"
+DOWNLOAD_DIR="$HOME/Downloads/YouTube"
+
+mkdir -p "$DOWNLOAD_DIR"
+
+if [ ! -f "$PLAYLIST_FILE" ]; then
+    echo "Playlists file not found at $PLAYLIST_FILE"
+    exit 1
+fi
+
+echo "[$(date)] Checking for new videos..."
+
+# Read URLs line by line ignoring comments and blank lines
+grep -v '^#' "$PLAYLIST_FILE" | grep -v '^[[:space:]]*$' | while read -r url; do
+    echo "Processing URL: $url"
+    yt-dlp --batch-file - <<< "$url"
+done
+
+echo "[$(date)] Download check finished."

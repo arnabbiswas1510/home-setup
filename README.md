@@ -60,12 +60,15 @@ ansible-playbook nano/setup_system.yml --ask-become-pass
 
 ## ⚙️ Managed Components for `nano`
 
-- **APT Repositories & Packages**: Google Chrome, Sublime Text, Tailscale, Syncthing, `zsh`, `build-essential`, `curl`, `wget`, `git`, `lsof`, `rclone`, `snapper`, `btrfs-progs`, `wl-clipboard`, `qimgv`, `feh`, `flatpak`
+- **APT Repositories & Packages**: Google Chrome, Sublime Text, Tailscale, Syncthing, `zsh`, `build-essential`, `curl`, `wget`, `git`, `lsof`, `rclone`, `snapper`, `btrfs-progs`, `wl-clipboard`, `qimgv`, `feh`, `flatpak`, `plasma-wallpapers-addons`
 - **Flatpak Applications**: Logseq, Foliate, NormCap, Rclone UI, ZapZap, SMPlayer, mpv, Avidemux, Jellyfin Desktop, Falkon, Plex Desktop, Zoom
-- **CLI Tools**: `yt-dlp`, `deno` installed in `~/.local/bin`
+- **CLI Tools & Custom Scripts**: `yt-dlp`, `deno`, `yt-autodownload`, `clean-cache.sh`, `libation` wrapper, `iptvnator` launcher deployed to `~/.local/bin`
 - **Desktop & Application Preferences**:
   - Konsole Settings & Custom Profiles (`konsolerc`, `MyProfile.profile`)
   - KDE Plasma Preferences & Shortcuts (`kdeglobals`, `kwinrc`, `kglobalshortcutsrc`)
+  - Spectacle Screenshot Config (`spectaclerc`) & Dolphin Settings (`dolphinrc`)
+  - IPTVnator Main Configuration (`~/.config/IPTVnator/config.json`)
+  - Media & Application Preferences (`yt-dlp/config`, `qimgv.conf`, `mimeapps.list`)
 - **AI & MCP Server Integrations**:
   - Antigravity MCP Server Config (`~/.gemini/config/mcp_config.json`) including Home Assistant integration
 

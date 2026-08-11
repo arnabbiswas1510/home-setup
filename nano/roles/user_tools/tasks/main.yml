@@ -16,3 +16,22 @@
     curl -fsSL {{ deno_install_url }} | sh
   args:
     creates: "{{ target_user_home }}/.deno/bin/deno"
+
+# --- Custom CLI Scripts & Launcher Wrappers ---
+- name: Deploy yt-autodownload script (~/.local/bin/yt-autodownload)
+  ansible.builtin.copy:
+    src: yt-autodownload
+    dest: "{{ local_bin_dir }}/yt-autodownload"
+    mode: '0755'
+
+- name: Deploy clean-cache.sh script (~/.local/bin/clean-cache.sh)
+  ansible.builtin.copy:
+    src: clean-cache.sh
+    dest: "{{ local_bin_dir }}/clean-cache.sh"
+    mode: '0755'
+
+- name: Deploy Libation wrapper (~/.local/bin/libation)
+  ansible.builtin.copy:
+    src: libation
+    dest: "{{ local_bin_dir }}/libation"
+    mode: '0755'

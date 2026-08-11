@@ -1,0 +1,3 @@
+#!/bin/bash
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
+exec /home/pom/.local/lib/libation/Libation "$@"
