@@ -9,6 +9,7 @@
     - "{{ target_user_home }}/.config/rclone"
     - "{{ target_user_home }}/.config/yt-dlp"
     - "{{ target_user_home }}/.config/qimgv"
+    - "{{ target_user_home }}/.config/IPTVnator"
     - "{{ target_user_home }}/.local/share/konsole"
     - "{{ target_user_home }}/.config/sublime-text/3/Packages/User"
 
@@ -62,6 +63,19 @@
     src: kde/kglobalshortcutsrc
     dest: "{{ target_user_home }}/.config/kglobalshortcutsrc"
     mode: '0600'
+
+# --- IPTVnator Configuration & Launch Wrapper ---
+- name: Deploy IPTVnator main config (config.json)
+  ansible.builtin.copy:
+    src: iptvnator/config.json
+    dest: "{{ target_user_home }}/.config/IPTVnator/config.json"
+    mode: '0600'
+
+- name: Deploy IPTVnator wrapper binary (~/.local/bin/iptvnator)
+  ansible.builtin.copy:
+    src: iptvnator/iptvnator
+    dest: "{{ target_user_home }}/.local/bin/iptvnator"
+    mode: '0755'
 
 # --- Antigravity / Gemini MCP Config ---
 - name: Ensure ~/.gemini/config directory exists
