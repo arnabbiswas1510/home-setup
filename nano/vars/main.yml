@@ -23,6 +23,7 @@ apt_packages:
   - ca-certificates
   - gpg
   - apt-transport-https
+  - plasma-wallpapers-addons
 
 # Third-party APT repositories & packages
 third_party_packages:
