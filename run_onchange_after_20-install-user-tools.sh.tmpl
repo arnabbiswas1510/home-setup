@@ -1,0 +1,20 @@
+#!/bin/bash
+# CLI tools and runtime installation script for chezmoi
+
+set -euo pipefail
+
+LOCAL_BIN="$HOME/.local/bin"
+mkdir -p "$LOCAL_BIN"
+
+# 1. Download/Update yt-dlp binary
+echo "--> Deploying yt-dlp binary to $LOCAL_BIN/yt-dlp..."
+curl -sSL "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" -o "$LOCAL_BIN/yt-dlp"
+chmod +x "$LOCAL_BIN/yt-dlp"
+
+# 2. Install Deno runtime if not present
+if ! command -v deno >/dev/null 2>&1 && [ ! -f "$HOME/.deno/bin/deno" ]; then
+    echo "--> Installing Deno runtime..."
+    curl -fsSL https://deno.land/install.sh | sh
+fi
+
+echo "==== User CLI tools setup complete ===="

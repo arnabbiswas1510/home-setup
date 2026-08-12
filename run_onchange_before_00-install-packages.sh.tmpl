@@ -1,0 +1,67 @@
+#!/bin/bash
+# System package & repository setup for chezmoi
+# Data hash: {{ include ".chezmoidata/hosts.toml" | sha256sum }}
+
+set -euo pipefail
+
+HOST_KEY="{{ lower .chezmoi.hostname }}"
+echo "==== Running chezmoi package setup for host: ${HOST_KEY} ===="
+
+{{ $hostData := index .hosts (lower .chezmoi.hostname) }}
+{{ if $hostData }}
+
+SUDO=""
+if [ "$(id -u)" -ne 0 ]; then
+    if sudo -n true 2>/dev/null; then
+        SUDO="sudo"
+    else
+        echo "--> Sudo requires password authentication; skipping root-level APT/Flatpak package setup."
+    fi
+fi
+
+if [ -n "$SUDO" ] || [ "$(id -u)" -eq 0 ]; then
+    # 1. Ensure keyrings directory exists
+    $SUDO mkdir -p /etc/apt/keyrings
+
+    # 2. Install prerequisite packages
+    echo "--> Installing APT prerequisites..."
+    $SUDO apt-get update -qq || true
+    $SUDO apt-get install -y -qq {{ range $hostData.apt_prereqs }}{{ . }} {{ end }}
+
+    # 3. Setup third-party GPG keyrings and APT repositories
+    {{ range $hostData.repos }}
+    echo "--> Setting up {{ .name }} repository..."
+    curl -fsSL "{{ .key_url }}" | $SUDO gpg --dearmor -o "{{ .keyring }}" 2>/dev/null || curl -fsSL "{{ .key_url }}" | $SUDO tee "{{ .keyring }}" >/dev/null
+    echo "{{ .repo }}" | $SUDO tee /etc/apt/sources.list.d/{{ .name }}.list >/dev/null
+    {{ end }}
+
+    # Tailscale repo handling (if tailscale is in apt_packages)
+    {{ if has "tailscale" $hostData.apt_packages }}
+    if [ ! -f /etc/apt/sources.list.d/tailscale.list ]; then
+        echo "--> Adding Tailscale repository..."
+        curl -fsSL https://pkgs.tailscale.com/stable/debian/trixie.noarmor.gpg | $SUDO tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+        curl -fsSL https://pkgs.tailscale.com/stable/debian/trixie.tailscale-keyring.list | $SUDO tee /etc/apt/sources.list.d/tailscale.list >/dev/null
+    fi
+    {{ end }}
+
+    # 4. Update APT cache and install APT packages
+    echo "--> Installing curated APT packages..."
+    $SUDO apt-get update -qq
+    $SUDO apt-get install -y {{ range $hostData.apt_packages }}{{ . }} {{ end }}
+
+    # 5. Flatpak repository and applications
+    {{ if $hostData.flatpak_apps }}
+    echo "--> Setting up Flathub remote..."
+    $SUDO flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+    echo "--> Installing Flatpak applications..."
+    {{ range $hostData.flatpak_apps }}
+    $SUDO flatpak install -y --noninteractive flathub {{ . }} || true
+    {{ end }}
+    {{ end }}
+fi
+
+echo "==== System package setup complete ===="
+{{ else }}
+echo "No specific host configuration found for ${HOST_KEY} in .chezmoidata/hosts.toml."
+{{ end }}
