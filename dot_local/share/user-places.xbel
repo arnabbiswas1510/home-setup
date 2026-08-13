@@ -167,7 +167,7 @@
    </metadata>
   </info>
  </separator>
- <bookmark href="file:///mnt/dietpi">
+ <bookmark href="file:///mnt">
   <title>DietPi NAS</title>
   <info>
    <metadata owner="http://freedesktop.org">
