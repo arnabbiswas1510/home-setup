@@ -37,16 +37,17 @@ apt_packages = [
 ]
 
 flatpak_apps = [
-  "com.logseq.Logseq",
-  "com.github.johnfactotum.Foliate",
   "com.github.dynobo.normcap",
+  "com.github.johnfactotum.Foliate",
+  "com.ktechpit.whatsie",
+  "com.logseq.Logseq",
   "com.rcloneui.RcloneUI",
-  "com.rtosta.zapzap",
   "info.smplayer.SMPlayer",
   "io.mpv.Mpv",
   "org.avidemux.Avidemux",
   "org.jellyfin.JellyfinDesktop",
   "org.kde.falkon",
+  "org.videolan.VLC",
   "tv.plex.PlexDesktop",
   "us.zoom.Zoom"
 ]
@@ -74,7 +75,21 @@ apt_packages = [
   "rclone",
   "tailscale"
 ]
-flatpak_apps = []
+flatpak_apps = [
+  "com.github.dynobo.normcap",
+  "com.github.johnfactotum.Foliate",
+  "com.ktechpit.whatsie",
+  "com.logseq.Logseq",
+  "com.rcloneui.RcloneUI",
+  "info.smplayer.SMPlayer",
+  "io.mpv.Mpv",
+  "org.avidemux.Avidemux",
+  "org.jellyfin.JellyfinDesktop",
+  "org.kde.falkon",
+  "org.videolan.VLC",
+  "tv.plex.PlexDesktop",
+  "us.zoom.Zoom"
+]
 system_services = [
   "tailscale"
 ]

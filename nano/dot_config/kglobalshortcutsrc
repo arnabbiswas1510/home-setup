@@ -258,6 +258,9 @@ switch to next activity=none,none,Switch to Next Activity
 switch to previous activity=none,none,Switch to Previous Activity
 toggle do not disturb=none,none,Toggle do not disturb
 
+[services][org.kde.plasma-systemmonitor.desktop]
+_launch=Ctrl+Shift+Esc\tCtrl+Esc, ,\s
+
 [services][org.kde.spectacle.desktop]
 RectangularRegionScreenShot=Meta+Shift+S\tMeta+Shift+Print
 _launch=Print

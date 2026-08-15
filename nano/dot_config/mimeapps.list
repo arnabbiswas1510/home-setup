@@ -18,3 +18,5 @@ video/mp4=info.smplayer.SMPlayer.desktop;
 video/vnd.avi=info.smplayer.SMPlayer.desktop;
 x-scheme-handler/http=google-chrome.desktop
 x-scheme-handler/https=google-chrome.desktop
+x-scheme-handler/logseq=logseq.desktop
+x-scheme-handler/antigravity=antigravity.desktop

@@ -133,14 +133,13 @@ ForegroundPositive=39,174,96
 ForegroundVisited=120,120,120
 
 [DirSelect Dialog]
-DirSelectDialog Size=879,584
-History Items[$e]=file:$HOME/GoogleDrive,file:$HOME/Logseq_Brain,file:$HOME/workspace/ai-health-coach
+DirSelectDialog Size=820,584
+History Items[$e]=file:$HOME/workspace,file:$HOME/Logseq_Brain,file:$HOME/Logseq_Brain,file:$HOME/GoogleDrive,file:$HOME/Logseq_Brain,file:$HOME/workspace/ai-health-coach
 Splitter State=\x00\x00\x00\xff\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x8c\x00\x00\x02\xa8\x00\xff\xff\xff\xff\x01\x00\x00\x00\x01\x00
 
 [General]
 BrowserApplication=google-chrome.desktop
-ColorScheme=Sweet
-ColorSchemeHash=5189d572ac818e13a7bb240c2f307730f01ff45b
+ColorSchemeHash=7dacf2623b079f1fc57ee80b01a8e073cb6e6ab3
 
 [Icons]
 Theme=candy-icons
