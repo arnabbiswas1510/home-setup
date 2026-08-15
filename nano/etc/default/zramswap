@@ -1,5 +1,4 @@
 # Compression algorithm selection
-# zstd is fast and has high compression ratios
 ALGO=zstd
 
 # Specifies the amount of RAM allocated as zram swap (in percent of total RAM)
