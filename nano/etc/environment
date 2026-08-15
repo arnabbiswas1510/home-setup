@@ -1,0 +1,2 @@
+KWIN_DRM_USE_MODIFIER=0
+KWIN_DRM_DEVICES=/dev/dri/card0:/dev/dri/card1:/dev/dri/card2

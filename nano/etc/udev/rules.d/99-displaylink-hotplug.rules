@@ -1,0 +1,2 @@
+# Gracefully reset DisplayLink driver on Lenovo ThinkPad Hybrid Dock unplug to prevent KWin DRM pageflip hangs
+ACTION=="remove", SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="17e9", ENV{ID_MODEL_ID}=="6015", RUN+="/usr/bin/systemctl restart --no-block displaylink-driver"

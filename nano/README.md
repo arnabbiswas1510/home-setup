@@ -1,6 +1,6 @@
 # Nano Machine Setup (`nano`)
 
-Configuration, dotfiles, hardware fixes, and automation for **Lenovo ThinkPad X1 Nano Gen 3** running **Debian 13 (Trixie)** with **KDE Plasma 6 (Wayland)**.
+Configuration, dotfiles, hardware fixes, system configuration backups, and automation for **Lenovo ThinkPad X1 Nano Gen 3** running **Debian 13 (Trixie)** with **KDE Plasma 6 (Wayland)**.
 
 ---
 
@@ -38,6 +38,20 @@ nano/
 │   └── share/
 │       ├── konsole/MyProfile.profile            # Custom Konsole profile
 │       └── user-places.xbel                     # Dolphin quick-access bookmarks & NAS shares
+├── etc/                                         # Direct backups of modified system configs in /etc
+│   ├── fstab                                    # /etc/fstab (btrfs root & CIFS NAS automounts)
+│   ├── environment                              # /etc/environment (KWin DRM environment)
+│   ├── environment.d/evdi.conf                  # /etc/environment.d/evdi.conf
+│   ├── default/grub.d/99-fastboot.cfg           # Fast boot GRUB timeout configuration
+│   ├── modprobe.d/
+│   │   ├── evdi.conf                            # EVDI dual-display configuration
+│   │   ├── i915-psr.conf                        # Intel GPU PSR disable
+│   │   └── nobeep.conf                          # PC speaker blacklisting
+│   ├── modules-load.d/evdi.conf                 # Early kernel module load configuration
+│   ├── udev/rules.d/99-displaylink-hotplug.rules# DisplayLink dock unplug udev rule
+│   ├── sysctl.d/50-kde-inotify-survey-...conf   # Inotify instances limit
+│   ├── samba/credentials-192.168.1.50.example   # Samba NAS credentials template
+│   └── apt/sources.list.d/                      # Third-party APT repositories
 ├── os-tweaks/
 │   ├── apply_evdi_wayland_fix.sh                # DisplayLink EVDI hot-unplug fix & SDDM monitor sync
 │   ├── fix_dock_unplug.sh                       # Intel GPU PSR disable & dock unplug resilience
