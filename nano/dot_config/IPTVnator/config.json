@@ -11,6 +11,6 @@
     "VLC_REUSE_INSTANCE": false,
     "remoteControl": false,
     "remoteControlPort": 8765,
-    "MPV_PLAYER_PATH": "/home/pom/.local/bin/mpv",
+    "MPV_PLAYER_PATH": "/usr/bin/mpv",
     "VLC_PLAYER_PATH": "/home/pom/.local/bin/vlc"
 }
