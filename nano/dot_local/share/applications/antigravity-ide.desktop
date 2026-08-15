@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Antigravity IDE
+GenericName=Text Editor
+Comment=AI-First Integrated Development Environment
+Exec="/home/pom/.local/share/antigravity-ide/antigravity-ide" --remote-debugging-port=9000 --dangerously-skip-permissions %F
+Icon=/home/pom/.local/share/antigravity-ide/resources/app/resources/linux/code.png
+Terminal=false
+Type=Application
+Categories=Development;IDE;TextEditor;
+MimeType=text/plain;inode/directory;
+StartupWMClass=antigravity-ide

@@ -34,6 +34,11 @@ CONFIG_MAP = {
     HOME / ".config" / "IPTVnator" / "config.json": NANO_DIR / "dot_config" / "IPTVnator" / "config.json",
     HOME / ".local" / "share" / "konsole" / "MyProfile.profile": NANO_DIR / "dot_local" / "share" / "konsole" / "MyProfile.profile",
     HOME / ".local" / "share" / "user-places.xbel": NANO_DIR / "dot_local" / "share" / "user-places.xbel",
+    HOME / ".local" / "share" / "applications" / "antigravity-ide.desktop": NANO_DIR / "dot_local" / "share" / "applications" / "antigravity-ide.desktop",
+    HOME / ".config" / "Antigravity IDE" / "User" / "settings.json": NANO_DIR / "dot_config" / "Antigravity IDE" / "User" / "settings.json",
+    HOME / ".gemini" / "antigravity-cli" / "settings.json": NANO_DIR / "dot_gemini" / "antigravity-cli" / "settings.json",
+    HOME / ".gemini" / "antigravity-ide" / "settings.json": NANO_DIR / "dot_gemini" / "antigravity-ide" / "settings.json",
+    HOME / ".gemini" / "config" / "mcp_config.json": NANO_DIR / "dot_gemini" / "config" / "mcp_config.json",
 }
 
 # Directories to mirror recursively
