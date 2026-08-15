@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  ib-gateway:
+    image: heshiming/ibga@sha256:82bba0d8befb40720b4e70be604ca57cc234cc4930ddbaf5cc45ed6f41e586c9
+    container_name: ib-gateway
+    restart: unless-stopped
+    ports:
+      - "4002:4000"   # IB Gateway API port
+      - "15800:15800" # VNC web viewer (no password required for local access)
+    environment:
+      - IB_USERNAME=${IBKR_LIVE_USER}
+      - IB_PASSWORD=${IBKR_LIVE_PASS}
+      - TOTP_KEY=${IBKR_TOTP_SECRET}
+      - IB_REGION=America
+      - IB_TIMEZONE=America/New_York
+      - IB_LOGINTAB=IB API
+      - IB_LOGINTYPE=Live Trading
+      - IB_LOGOFF=11:55 PM
+      - IB_APILOG=data
+      - IB_LOGLEVEL=Error
+    volumes:
+      - ib-gateway-program:/home/ibg
+      - ib-gateway-settings:/home/ibg_settings
+    networks:
+      - trading_bridge
+
+  execution-agent:
+    image: ghcr.io/arnabbiswas1510/ai-trading-bot-execution-agent:latest
+    container_name: execution-agent
+    restart: unless-stopped
+    depends_on:
+      - ib-gateway
+    env_file:
+      - .env
+    environment:
+      - IB_GATEWAY_HOST=ib-gateway
+      - IB_GATEWAY_PORT=4000
+    volumes:
+      - /home/dietpi/docker/ai-trading-bot/logs:/app/logs   # host path — survives container recreations
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"   # Docker json-file capped for live `docker logs` tailing
+        max-file: "3"
+    networks:
+      - trading_bridge
+
+  trading-bot:
+    image: ghcr.io/arnabbiswas1510/ai-trading-bot:latest
+    container_name: can-slim-trading-bot
+    ports:
+      - "8000:8000"
+    volumes:
+      - bot-data:/app/data
+      - /home/dietpi/docker/ai-trading-bot/frontend/dist:/app/frontend/dist  # hot-swap built UI
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DB_PATH=/app/data/trading_bot.db
+    networks:
+      - trading_bridge
+
+networks:
+  trading_bridge:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1400
+
+volumes:
+  bot-data:
+    driver: local
+  ib-gateway-program:
+    driver: local
+  ib-gateway-settings:
+    driver: local
+

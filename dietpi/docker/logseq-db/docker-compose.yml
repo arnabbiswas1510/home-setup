@@ -1,0 +1,18 @@
+services:
+  logseq-db-sync:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host            # Forces the builder to use native network
+      args:
+        - LOGSEQ_REF=174fd15c8e1dfa4fb1f766043953f32f5fb76608
+    container_name: logseq-sync-server
+    restart: unless-stopped
+    ports:
+      - "${SYNC_PORT:-8790}:8787"
+    env_file:
+      - .env
+    volumes:
+      - ./sync_data:/app/data
+    security_opt:
+      - no-new-privileges:true

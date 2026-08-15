@@ -1,0 +1,77 @@
+# =============================================================================
+# docker-compose.yml
+# =============================================================================
+# Usage:
+#   docker compose up -d        # pulls ghcr.io/arnabbiswas1510/ai-health-coach:latest
+#
+# On every `up`, the container automatically:
+#   1. Deletes stale HTML artifacts
+#   2. Runs the AI coach analysis (aborts with clear error if it fails)
+#   3. Starts nginx (dashboard on port 8085)
+#   4. Starts the chat-api (feedback panel on port 8001)
+#   5. Starts the Garmin poller daemon (re-runs analysis on new activities)
+# =============================================================================
+
+
+services:
+  ai-health-coach:
+    build: .
+    image: ai-health-coach:local
+    entrypoint: ["/app/startup.sh"]
+    container_name: ai-health-coach
+    restart: unless-stopped
+    ports:
+      - "8085:80" # Dashboard (nginx)
+      - "8001:8001" # Chat API  (optional direct access)
+    environment:
+      # ── LLM Keys ───────────────────────────────────────────────────────────
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      # ── Garmin Credentials ─────────────────────────────────────────────────
+      - GARMIN_EMAIL=${GARMIN_EMAIL}
+      - GARMIN_PASSWORD=${GARMIN_PASSWORD}
+      # ── AI Mode ────────────────────────────────────────────────────────────
+      - AI_MODE=${AI_MODE:-cost_effective}
+      # ── Athlete Profile ────────────────────────────────────────────────────
+      - ATHLETE_NAME=${ATHLETE_NAME:-}
+      - ATHLETE_AGE=${ATHLETE_AGE:-53}
+      - TARGET_GOAL=${TARGET_GOAL:-base_building}
+      - ATHLETE_HEIGHT=${ATHLETE_HEIGHT:-}
+      - ATHLETE_WEIGHT=${ATHLETE_WEIGHT:-}
+      - WEIGHT_GOAL=${WEIGHT_GOAL:-}
+      # ── Training Context ───────────────────────────────────────────────────
+      - CONTEXT_ANALYSIS=${CONTEXT_ANALYSIS:-}
+      - CONTEXT_PLANNING=${CONTEXT_PLANNING:-}
+      - ACTIVITIES_DAYS=${ACTIVITIES_DAYS:-7}
+      - METRICS_DAYS=${METRICS_DAYS:-14}
+      - MISSED_RUNS_COUNT=${MISSED_RUNS_COUNT:-0}
+      - ACCUMULATED_DEBT_KM=${ACCUMULATED_DEBT_KM:-0.0}
+      - COMPETITIONS=${COMPETITIONS:-}
+      # ── Feature Flags ──────────────────────────────────────────────────────
+      - SYNC_CALENDAR=${SYNC_CALENDAR:-false}
+      - ENABLE_PLOTTING=${ENABLE_PLOTTING:-false}
+      - HITL_ENABLED=${HITL_ENABLED:-true}
+      - SKIP_SYNTHESIS=${SKIP_SYNTHESIS:-false}
+      - FORCE_ANALYTICS=${FORCE_ANALYTICS:-false}
+      # ── Logseq SSH direct-write (no Logseq process required) ──────────────
+      # Migration to new machine: update LOGSEQ_SSH_HOST + LOGSEQ_GRAPH_PATH only.
+      - LOGSEQ_SSH_HOST=${LOGSEQ_SSH_HOST}
+      - LOGSEQ_SSH_USER=${LOGSEQ_SSH_USER}
+      - LOGSEQ_SSH_PORT=${LOGSEQ_SSH_PORT:-22}
+      - LOGSEQ_SSH_KEY_PATH=${LOGSEQ_SSH_KEY_PATH:-/root/.ssh/id_ed25519}
+      - LOGSEQ_GRAPH_PATH=${LOGSEQ_GRAPH_PATH}
+      - OUTPUT_DIR=/app/data
+      - POLL_INTERVAL_SECONDS=${POLL_INTERVAL_SECONDS:-3600}
+    volumes:
+      - ./tokens:/app/tokens                        # Garmin auth tokens (persisted)
+      - ./data:/app/data                            # Generated HTML + JSON (persisted)
+      - ./coach_config.yaml:/app/coach_config.yaml  # Athlete config
+      - ./daemon.py:/app/daemon.py                  # Hot-reload: local overrides image
+      - ./force_wotd.py:/app/force_wotd.py          # Hot-reload: local overrides image
+      - ./services/garmin:/app/services/garmin      # Hot-reload: local overrides image
+      - ./services/logseq:/app/services/logseq      # Hot-reload: local overrides image
+      - /root/.ssh:/root/.ssh:ro                    # SSH key for Logseq direct-write

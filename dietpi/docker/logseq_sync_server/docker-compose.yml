@@ -1,0 +1,15 @@
+services:
+  logseq-db-sync:
+    build:
+      context: ./build-server
+      network: host            # <--- This forces the builder to use DietPi's native network
+    container_name: logseq-sync-server
+    restart: unless-stopped
+    ports:
+      - "${SYNC_PORT}:8787"
+    env_file:
+      - .env
+    volumes:
+      - ./sync_data:/app/data
+    security_opt:
+      - no-new-privileges:true

@@ -1,0 +1,591 @@
+---
+include:
+  - path: ./dawarich/docker-compose.yml
+  - path: ./omnivore/docker-compose.yml
+  - path: ./ai-trading-bot/docker-compose.yml
+  - path: ./garmin-ai-coach/docker-compose.yml
+  - path: ./tdarr/docker-compose.yml
+services:
+  test-service:
+    image: alpine
+    environment:
+      - UPDATED=2025_TEST_2
+  plex:
+    image: ghcr.io/linuxserver/plex
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=docker
+      - PLEX_CLAIM= #optional
+    volumes:
+      - ./config/Plex:/config
+      - /mnt/media1:/media01
+      - /mnt/media2:/media02
+      - /mnt/tvShows:/miscellaneous
+      - ./config/Plex/transcode:/transcode
+    devices:
+      - /dev/dri:/dev/dri/
+    restart: unless-stopped
+
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    volumes:
+      - ./config/audiobookshelf:/config
+      - /mnt/books/Audiobooks:/audiobooks
+      - ./config/audiobookshelf/metadata:/metadata
+    ports:
+      - 13378:80
+    restart: unless-stopped
+
+  komga:
+    image: gotson/komga
+    container_name: komga
+    volumes:
+      - type: bind
+        source: ./config/komga
+        target: /config
+      - type: bind
+        source: /mnt/books
+        target: /data
+      - type: bind
+        source: /etc/timezone #alternatively you can use a TZ environment variable, like TZ=Europe/London
+        target: /etc/timezone
+        read_only: true
+    ports:
+      - 25600:25600
+    restart: unless-stopped
+
+  kavita:
+    image: lscr.io/linuxserver/kavita:latest
+    container_name: kavita
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - ./config/kavita:/config
+      - ./config/bookdrop:/bookdrop
+      - /mnt/books:/data
+      - /mnt/books:/books
+    ports:
+      - "6060:5000"
+    restart: unless-stopped
+
+  code-server: 
+    image: lscr.io/linuxserver/code-server:latest
+    container_name: code-server
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=US/Eastern
+      - EXTENSIONS_GALLERY={"serviceUrl":"https://marketplace.visualstudio.com/_apis/public/gallery","itemUrl":"https://marketplace.visualstudio.com/items"}
+      - DOCKER_MODS=linuxserver/mods:code-server-git|linuxserver/mods:code-server-python3|linuxserver/mods:code-server-nodejs
+      # OpenRouter Config
+      - OPENROUTER_API_KEY=${MY_OPENROUTER_KEY}
+      - ANTHROPIC_API_KEY=${MY_OPENROUTER_KEY}
+      - ANTHROPIC_BASE_URL=https://openrouter.ai/api/v1
+    volumes:
+      - ./config/code-server:/config
+      - ./config/code-server/custom-cont-init.d:/custom-cont-init.d
+      - ./config/code-server/extensions:/config/extensions
+      - ./config/code-server/.ssh:/root/.ssh
+      - ./config/code-server/Finance/my_venv:/Finance/finance_venv
+      - ./config/code-server/Algorithms:/Algorithms
+      - ./config/code-server/Finance:/Finance
+      - ./config/code-server/luau:/luau
+      - ./config/code-server/typescript:/typescript
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    ports:
+      - 8443:8443
+    user: "0:0"  # root:root
+    restart: unless-stopped
+
+  opencode-ai:
+    build: 
+      context: ./opencode
+      dockerfile: Dockerfile
+    container_name: opencode-ai
+    restart: unless-stopped
+    ports:
+      - "4096:4096"
+    environment:
+      - OPENROUTER_API_KEY=${MY_OPENROUTER_KEY}
+    volumes:
+      - "./opencode/config:/root/.config/opencode"
+      - "./opencode/opencode-data:/root/.local/share/opencode"
+      - "./opencode:/workspace"
+      - "/home/dietpi/docker:/projects/docker"
+    working_dir: /projects
+    command: serve --port 4096 --hostname 0.0.0.0 --cors "*"
+
+  webdav:
+    image: bytemark/webdav
+    container_name: obsidian-webdav
+    restart: unless-stopped
+    ports:
+      - "8082:80"  # We map internal port 80 to host port 8080
+    environment:
+      - AUTH_TYPE=Digest
+      - USERNAME=pom
+      - PASSWORD=paro
+    volumes:
+      - /home/dietpi/obsidian:/var/lib/dav/data
+
+  watchtower:
+      image: containrrr/watchtower
+      container_name: watchtower
+      volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+      environment:
+          - TZ=US/Eastern
+          - WATCHTOWER_SCHEDULE= 0 0 03 * * ? #At 03:00 AM everyday
+          - DOCKER_API_VERSION=1.40
+          - WATCHTOWER_CLEANUP=true
+          - WATCHTOWER_INCLUDE_STOPPED=true
+          - WATCHTOWER_REVIVE_STOPPED=false
+      restart: unless-stopped
+
+  dufs:
+    volumes:
+      - ./config/dufs/config.yaml:/config
+      - "/mnt/tvShows/Kung Fu:/data/KungFu David Carradine"
+      - "/mnt/books/Audiobooks/The Anxious Generation:/data/The Anxious Generation"
+      - "/mnt/books/Comics/TintinPdf/Tintin:/data/TintinPdf"
+      - "/mnt/books/Comics/AsterixPdf:/data/AsterixPdf"
+    ports:
+      - 5000:5000
+    image: sigoden/dufs
+    container_name: dufs
+    command: /data -A
+    restart: unless-stopped
+
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - VPN_TYPE=openvpn
+      - SERVER_REGIONS=United_States
+      - OPENVPN_USER=${NORDVPN_USER}
+      - OPENVPN_PASSWORD=${NORDVPN_PASSWORD}
+      # IMPORTANT: Allows you to access the Web UIs on your home network
+      - EXTRA_SUBNETS=192.168.1.0/24 
+    ports:
+      - "8888:8888" # qBittorrent WebUI
+      - "6881:6881" # qBittorrent BT port (TCP)
+      - "6881:6881/udp" # qBittorrent BT port (UDP)
+      - "7878:7878" # Radarr
+      - "8989:8989" # Sonarr
+      - "7575:7575" # Homarr
+      - "6969:6969" # Whisparr
+      - "8181:8080" # SABnzbd WebUI (Added)
+      - "9696:9696" # Prowlarr
+      - "8787:8787" # Readarr
+      - "8686:8686" # Lidarr
+      - "6767:6767" # Bazarr
+    init: true
+    restart: unless-stopped
+    networks:
+      - vpn_network
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    container_name: qbittorrent
+    environment:
+      - WEBUI_PORT=8888
+      - PUID=1000
+      - PGID=1000
+    network_mode: "service:gluetun"
+    volumes:
+      - ./config/qbittorrent/config:/config
+      - ./config/qbittorrent/downloads:/downloads
+    restart: unless-stopped
+
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    network_mode: "service:gluetun" # Routes through VPN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - ./config/sabnzbd/config:/config
+      - ./config/qbittorrent/downloads:/downloads # IMPORTANT: Keep this shared with qbit for Whisparr
+    restart: unless-stopped
+
+  whisparr:
+    image: ghcr.io/thespad/whisparr:latest
+    container_name: whisparr
+    network_mode: "service:gluetun" # Routes through VPN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - ./config/whisparr/config:/config
+      - ./config/qbittorrent/downloads:/downloads # Accesses finished files here
+    restart: unless-stopped
+
+  # --- The "Arr" Stack ---
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - ./config/sonarr/config:/config
+      - ./config/qbittorrent/downloads:/downloads
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - ./config/radarr/config:/config
+      - ./config/qbittorrent/downloads:/downloads
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./config/prowlarr/config:/config
+    restart: unless-stopped
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./config/lidarr/config:/config
+      - ./config/qbittorrent/downloads:/downloads
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./config/bazarr/config:/config
+      - ./config/qbittorrent/downloads:/downloads
+    restart: unless-stopped
+
+  redis:
+    container_name: paperless-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  immich-server:
+    container_name: immich-server
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    # extends:
+    #   file: hwaccel.transcoding.yml
+    #   service: cpu # set to one of [nvenc, quicksync, rkmpp, vaapi, vaapi-wsl] for accelerated transcoding
+    volumes:
+      # Do not edit the next line. If you want to change the media storage location on your system, edit the value of UPLOAD_LOCATION in the .env file
+      - ${UPLOAD_LOCATION}:/usr/src/app/upload
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env
+    ports:
+      - '2283:2283'
+    depends_on:
+      - redis
+      - database
+    restart: always
+    healthcheck:
+      disable: false
+
+  immich-machine-learning:
+    container_name: immich_ml
+    # For hardware acceleration, add one of -[armnn, cuda, rocm, openvino, rknn] to the image tag.
+    # Example tag: ${IMMICH_VERSION:-release}-cuda
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    # extends: # uncomment this section for hardware acceleration - see https://immich.app/docs/features/ml-hardware-acceleration
+    #   file: hwaccel.ml.yml
+    #   service: cpu # set to one of [armnn, cuda, rocm, openvino, openvino-wsl, rknn] for accelerated inference - use the `-wsl` version for WSL2 where applicable
+    volumes:
+      - model-cache:/cache
+    env_file:
+      - .env
+    restart: always
+    healthcheck:
+      disable: false
+
+  database:
+    container_name: immich_postgres
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+    volumes:
+      # Do not edit the next line. If you want to change the database storage location on your system, edit the value of DB_DATA_LOCATION in the .env file
+      - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
+    healthcheck:
+      test: >-
+        pg_isready --dbname="$${POSTGRES_DB}" --username="$${POSTGRES_USER}" || exit 1; Chksum="$$(psql --dbname="$${POSTGRES_DB}" --username="$${POSTGRES_USER}" --tuples-only --no-align --command='SELECT COALESCE(SUM(checksum_failures), 0) FROM pg_stat_database')"; echo "checksum failure count is $$Chksum"; [ "$$Chksum" = '0' ] || exit 1
+      interval: 5m
+      start_interval: 30s
+      start_period: 5m
+    restart: always
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=secret
+      - N8N_HOST=n8n.local
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
+    volumes:
+      - ./config/n8n_data:/home/dietpi/docker/config/n8n/data
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+
+  it-tools:
+    image: corentinth/it-tools:latest
+    container_name: it-tools
+    restart: unless-stopped
+    ports:
+      - '8998:80' 
+
+  ib-gateway-debug:
+    image: ghcr.io/gnzsnz/ib-gateway:stable
+    container_name: ib-gateway-debug
+    restart: always
+    # Security options prevent "Sandbox" errors in the Java/X11 environment
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "4002:4002"  # Paper Trading API Port
+      - "5900:5900"  # VNC Port
+    environment:
+      # --- REQUIRED TRADING CONFIG ---
+      - TRADING_MODE=paper
+      - TWS_USERID=pambi2478
+      - TWS_PASSWORD=Nuclear$$Senorita$$Kinsman0
+      - VNC_SERVER_PASSWORD=paro  # Must be set to enable VNC
+      
+      # --- API & GUI CONFIG ---
+      - TWS_ACCEPT_INCOMING=accept
+      - READ_ONLY_API=no
+      - DISPLAY=:1
+      - TIME_ZONE=America/New_York
+      
+      # --- CUSTOM SCRIPT HOOK ---
+      # Native way to run your script without breaking the entrypoint
+      - START_SCRIPTS=/home/ibgateway/fix-trusted-ips-auto.sh
+    profiles: [debug]
+    volumes:
+      - ibgateway_jts:/home/ibgateway/Jts
+      - ./config/fix-trusted-ips-auto.sh:/home/ibgateway/fix-trusted-ips-auto.sh:ro
+
+  netalertx:
+    network_mode: host   # Use host networking for ARP scanning and other services
+    image: ghcr.io/jokob-sk/netalertx:latest # Use the official repository address
+    container_name: netalertx                       # The name when you docker contiainer ls
+    read_only: true                                 # Make the container filesystem read-only
+    cap_drop:                                       # Drop all capabilities for enhanced security
+      - ALL
+    cap_add:                                        # Add only the necessary capabilities
+      - NET_ADMIN                                   # Required for scanning with arp-scan, nmap, nbtscan, traceroute, and zero-conf
+      - NET_RAW                                     # Required for raw socket operations with arp-scan, nmap, nbtscan, traceroute and zero-conf
+      - NET_BIND_SERVICE                            # Required to bind to privileged ports with nbtscan
+      - CHOWN                                       # Required for root-entrypoint to chown /data + /tmp before dropping privileges
+      - SETUID                                      # Required for root-entrypoint to switch to non-root user
+      - SETGID                                      # Required for root-entrypoint to switch to non-root group                  
+    volumes:
+      - type: volume                                # Persistent Docker-managed Named Volume for storage
+        source: netalertx_data                      # the default name of the volume is netalertx_data
+        target: /data                               # consolidated configuration and database storage
+        read_only: false                            # writable volume
+      - type: bind                           # Bind mount for timezone consistency
+        source: /etc/localtime
+        target: /etc/localtime
+        read_only: true
+    tmpfs:
+      - "/tmp:mode=1700,uid=20211,gid=20211,rw,noexec,nosuid,nodev,async,noatime,nodiratime"
+    environment:
+      PUID: ${NETALERTX_UID:-20211}                             # Runtime UID after priming (Synology/no-copy-up safe)
+      PGID: ${NETALERTX_GID:-20211}                             # Runtime GID after priming (Synology/no-copy-up safe)
+      LISTEN_ADDR: ${LISTEN_ADDR:-0.0.0.0}                      # Listen for connections on all interfaces
+      PORT: ${PORT:-20211}                                      # Application port
+      GRAPHQL_PORT: ${GRAPHQL_PORT:-20212}                      # GraphQL API port
+      ALWAYS_FRESH_INSTALL: ${ALWAYS_FRESH_INSTALL:-false}      # Set to true to reset your config and database on each container start
+      NETALERTX_DEBUG: ${NETALERTX_DEBUG:-0}                    # 0=kill all services and restart if any dies. 1 keeps running dead services.
+    mem_limit: 2048m            # Maximum memory usage
+    mem_reservation: 1024m      # Soft memory limit
+    cpu_shares: 512             # Relative CPU weight for CPU contention scenarios
+    pids_limit: 512             # Limit the number of processes/threads to prevent fork bombs
+    restart: unless-stopped
+
+  ntopng:
+    # Use 'latest' instead of 'stable' for the official image
+    image: ntop/ntopng:latest 
+    container_name: ntopng
+    restart: unless-stopped
+    # Use host mode to see physical interfaces like eth1
+    network_mode: "host"
+    # Privileged is required to fix the 'missing super-user' error in your logs
+    privileged: true
+    # Point explicitly to your active interface
+    command: ntopng -i eth1 -w 3000 --community
+
+  emby:
+    image: emby/embyserver:latest
+    container_name: embyserver
+    restart: unless-stopped
+    ports:
+      - "8096:8096" # Web interface (HTTP)
+      - "8920:8920" # Web interface (HTTPS)
+      - "7777:7777/udp" # For Emby mobile apps auto discovery
+      - "1900:1900/udp" # For Emby mobile apps auto discovery
+    volumes:
+      - ./config/emby/config:/config
+      - /mnt/books/tundru:/mnt/movies:ro
+      #- /path/to/your/media/tvshows:/mnt/tvshows:ro
+      # Add more volumes for music, photos, etc.
+    environment:
+      # Optional: Define user/group IDs for permissions
+      # Check your host system for PUID and PGID by typing 'id' in the terminal
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC # Set your timezone, e.g., America/New_York
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    ports:
+      - "8097:8096"
+      - "8921:8920"
+      - "7359:7359/udp"
+    volumes:
+      - ./config/jellyfin/config:/config
+      - ./config/jellyfin/cache:/cache
+      - /mnt/books/tundru:/mnt/movies:ro
+    devices:
+      - /dev/dri:/dev/dri
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - MEILI_URL=http://meilisearch:7700
+      - MEILI_MASTER_KEY=JellyfinMeiliSmartSearchSecretKey2026!
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.11
+    container_name: meilisearch
+    restart: unless-stopped
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_MASTER_KEY=JellyfinMeiliSmartSearchSecretKey2026!
+      - MEILI_ENV=production
+      - MEILI_NO_ANALYTICS=true
+    volumes:
+      - ./config/meilisearch/data:/meili_data
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+
+volumes:
+  netalertx_data:
+  seafile-db:
+  seafile-data:
+  es-data:
+  freshrss_data:
+  postgres_data:
+  pg_data:
+  data:
+  media:
+  netdata-config:
+  netdata-cache:
+  netdata-lib:
+  model-cache:
+  dawarich_db_data:
+    external: true
+    name: dawarich_dawarich_db_data
+  dawarich_public:
+    external: true
+    name: dawarich_dawarich_public
+  dawarich_shared:
+    external: true
+    name: dawarich_dawarich_shared
+  dawarich_storage:
+    external: true
+    name: dawarich_dawarich_storage
+  dawarich_watched:
+    external: true
+    name: dawarich_dawarich_watched
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  redis_data:
+    driver: local
+  ibgateway_jts:
+    driver: local
+
+networks:
+  seafile-net:
+    driver: bridge
+  proxy-network:
+  vpn_network:
+    driver: bridge
+  monitor_net:
+    driver: bridge
+  bookologia-net:
+    driver: bridge
+

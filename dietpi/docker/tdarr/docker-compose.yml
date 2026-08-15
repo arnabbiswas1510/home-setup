@@ -1,0 +1,52 @@
+version: "3.4"
+
+services:
+  tdarr:
+    container_name: tdarr
+    image: haveagitgat/tdarr:latest
+    restart: unless-stopped
+    ports:
+      - "8265:8265" # Web UI
+      - "8266:8266" # Server Port
+    environment:
+      - TZ=America/New_York
+      - PUID=1000
+      - PGID=1000
+      - webUIPort=8265
+      - serverPort=8266
+      - serverIP=0.0.0.0
+    volumes:
+      - ./server/server:/app/server
+      - ./server/configs:/app/configs
+      - ./server/logs:/app/logs
+      - ./transcode:/temp
+      - /mnt:/mnt
+      - /mnt/media1:/media1
+      - /mnt/media2:/media2
+      - /mnt/tvShows:/tvShows
+
+  tdarr-node:
+    container_name: tdarr-node
+    image: haveagitgat/tdarr_node:latest
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York
+      - PUID=1000
+      - PGID=1000
+      - nodeID=TdarrLocalNode
+      - nodeIP=0.0.0.0
+      - nodePort=8267
+      - serverIP=tdarr
+      - serverPort=8266
+    volumes:
+      - ./node/configs:/app/configs
+      - ./node/logs:/app/logs
+      - ./transcode:/temp
+      - /mnt:/mnt
+      - /mnt/media1:/media1
+      - /mnt/media2:/media2
+      - /mnt/tvShows:/tvShows
+    devices:
+      - /dev/dri:/dev/dri
+    depends_on:
+      - tdarr

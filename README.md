@@ -1,110 +1,111 @@
 # Home Setup (`home-setup`)
 
-Centralized, multi-machine **chezmoi** repository designed to maintain, back up, and reproduce exact operating system states, software packages, background services, CLI tools, dotfiles, desktop configurations (Konsole profiles, KDE Plasma shortcuts), and Antigravity MCP server configurations across all your computers (`nano`, `dietpi`, etc.).
+Centralized multi-machine repository managing operating system configurations, dotfiles, hardware fixes, background services, Docker infrastructure, and AI tool integrations across all home systems.
 
 ---
 
-## 📁 Repository Architecture
+## 💻 Machines Overview
 
-The repository uses **chezmoi** to manage dotfiles, CLI tools, and automated system setup scripts across multiple machines:
+| Folder | Machine Name | OS / Hardware | Role & Architecture |
+| :--- | :--- | :--- | :--- |
+| **[`nano/`](./nano/)** | `Nano` | Debian 13 (Trixie) / Lenovo ThinkPad X1 Nano Gen 3 | Primary Workstation: KDE Plasma (Wayland), DisplayLink Hybrid Dock fixes, chezmoi dotfiles, Flatpaks, Antigravity MCP servers |
+| **[`dietpi/`](./dietpi/)** | `DietPi` | DietPi (Debian) / Headless Server (`192.168.1.50`) | Central NAS & Application Server: 30+ Docker containers, Samba network storage, Gitwatch continuous sync, rsync backups |
+
+---
+
+## 📁 Repository Structure
 
 ```text
 home-setup/
-├── README.md                                    # Global repository documentation & prompt workflow guide
-├── .chezmoidata/
-│   └── hosts.toml                               # Curated package, Flatpak, and service definitions per machine
-├── run_onchange_before_00-install-packages.sh.tmpl # Automated APT repo keyring, package & Flatpak setup
-├── run_onchange_after_10-setup-services.sh.tmpl   # Automated Systemd system and user service enablement
-├── run_onchange_after_20-install-user-tools.sh.tmpl# Automated yt-dlp & Deno runtime installer
-├── dot_bashrc                                   # Shell configuration (~/.bashrc)
-├── dot_profile                                  # Login profile configuration (~/.profile)
-├── dot_config/
-│   ├── konsolerc                                # Konsole main settings
-│   ├── kdeglobals                               # KDE Plasma theme & visual preferences
-│   ├── kwinrc                                   # Window manager & tiling settings
-│   ├── kglobalshortcutsrc                       # Global Plasma shortcuts
-│   ├── IPTVnator/config.json                    # IPTVnator player configuration
-│   ├── yt-dlp/config                            # yt-dlp global options & download templates
-│   ├── qimgv/qimgv.conf                         # qimgv image viewer preferences
-│   ├── spectaclerc                              # Spectacle screenshot settings
-│   ├── dolphinrc                                # Dolphin file manager view properties
-│   └── mimeapps.list                            # XDG default applications & associations
-├── dot_gemini/
-│   └── config/mcp_config.json                   # Antigravity MCP Server Config (Home Assistant integration)
-└── dot_local/
-    ├── share/konsole/MyProfile.profile          # Konsole custom profile definition
-    └── bin/
-        ├── executable_yt-autodownload           # Auto-download script for YouTube playlists
-        ├── executable_clean-cache.sh            # User application cache cleanup utility
-        ├── executable_libation                  # Libation launcher wrapper
-        └── executable_iptvnator                # IPTVnator Wayland/X11 launcher wrapper
+├── README.md                                    # Global multi-machine overview
+├── .gitignore                                   # Git ignore rules
+├── nano/                                        # ThinkPad X1 Nano workstation configuration
+│   ├── README.md                                # Machine-specific documentation & runbook
+│   ├── .chezmoidata/
+│   │   └── hosts.toml                           # Host package and service definitions
+│   ├── run_onchange_before_00-install-packages.sh.tmpl # Automated APT & Flatpak installer
+│   ├── run_onchange_after_10-setup-services.sh.tmpl   # Automated Systemd services setup
+│   ├── run_onchange_after_20-install-user-tools.sh.tmpl# yt-dlp & Deno tool installer
+│   ├── dot_bashrc                               # Shell configuration (~/.bashrc)
+│   ├── dot_profile                              # Login profile (~/.profile)
+│   ├── dot_config/                              # Konsole, KDE Plasma, IPTVnator, yt-dlp, qimgv, etc.
+│   ├── dot_gemini/                              # Antigravity MCP servers (Home Assistant, Garmin)
+│   ├── dot_local/                               # Custom launcher wrappers & Konsole profiles
+│   ├── os-tweaks/                               # Hardware fixes (DisplayLink EVDI, dock unfreeze, fastboot)
+│   └── scripts/                                 # Helper installers (Oh My Zsh, Plex, Syncthing)
+└── dietpi/                                      # DietPi server & NAS infrastructure
+    ├── README.md                                # Server documentation & container port map
+    ├── dot_bashrc                               # Server shell environment (~/.bashrc)
+    ├── dot_profile                              # Server login profile (~/.profile)
+    ├── dot_gitconfig                            # Server git configuration (~/.gitconfig)
+    ├── bin/                                     # Server scripts (run-all-rsync.sh)
+    ├── gitwatch/                                # Inotify auto-commit & push service template
+    ├── os-tweaks/                               # System setup, Samba share exports, cron automation
+    └── docker/                                  # Multi-service Docker Compose stacks
+        ├── docker-compose.yml                   # Unified media, download, monitoring stack
+        ├── .env.example                         # Environment variable template
+        ├── dawarich/                            # Self-hosted geolocation tracking
+        ├── omnivore/                            # Read-it-later article archive
+        ├── tdarr/                               # Distributed media transcoding
+        ├── opencode/                            # OpenCode AI server
+        ├── logseq-db/                           # Logseq DB sync engine
+        ├── logseq_sync_server/                  # Logseq Cognito sync server
+        ├── ai-trading-bot/                      # Interactive Brokers & CAN SLIM bot stack
+        └── garmin-ai-coach/                     # AI Health & Endurance Coach
 ```
 
 ---
 
-## 🚀 Quickstart: Reproducing a Machine
+## 🚀 Quickstarts
 
-To reproduce a machine's setup on a fresh system:
+### Reproducing `Nano` Workstation
 
 ```bash
-# 1. Install chezmoi
+# 1. Install chezmoi if not already installed
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
 
-# 2. Initialize and apply the home-setup repository
-chezmoi init --apply git@github.com:arnabbiswas1510/home-setup.git
+# 2. Apply configuration from the nano directory
+chezmoi apply --source ~/workspace/home-setup/nano
+
+# 3. Apply hardware & OS tweaks (DisplayLink dock, boot speed, NAS mounts)
+cd ~/workspace/home-setup/nano/os-tweaks
+sudo ./apply_evdi_wayland_fix.sh
+sudo ./fix_dock_unplug.sh
+sudo ./optimize_boot.sh
+sudo ./setup_nas_mounts.sh
 ```
 
-If the repository is already cloned locally:
-```bash
-chezmoi apply --source ~/workspace/home-setup
-```
-
----
-
-## ⚙️ Managed Components for `nano`
-
-- **APT Repositories & Packages**: Google Chrome, Sublime Text, Tailscale, Syncthing, `zsh`, `build-essential`, `curl`, `wget`, `git`, `lsof`, `rclone`, `snapper`, `btrfs-progs`, `wl-clipboard`, `qimgv`, `feh`, `flatpak`, `plasma-wallpapers-addons`
-- **Flatpak Applications**: Logseq, Foliate, NormCap, RcloneUI, ZapZap, SMPlayer, mpv, Avidemux, Jellyfin Desktop, Falkon, Plex Desktop, Zoom
-- **CLI Tools & Custom Scripts**: `yt-dlp`, `deno`, `yt-autodownload`, `clean-cache.sh`, `libation` wrapper, `iptvnator` launcher deployed to `~/.local/bin`
-- **Desktop & Application Preferences**:
-  - Konsole Settings & Custom Profiles (`konsolerc`, `MyProfile.profile`)
-  - KDE Plasma Preferences & Shortcuts (`kdeglobals`, `kwinrc`, `kglobalshortcutsrc`)
-  - Spectacle Screenshot Config (`spectaclerc`) & Dolphin Settings (`dolphinrc`)
-  - IPTVnator Main Configuration (`~/.config/IPTVnator/config.json`)
-  - Media & Application Preferences (`yt-dlp/config`, `qimgv.conf`, `mimeapps.list`)
-- **AI & MCP Server Integrations**:
-  - Antigravity MCP Server Config (`~/.gemini/config/mcp_config.json`) including Home Assistant integration
-
----
-
-## 🏷️ Selective Execution & Inspection with chezmoi
-
-You can preview changes or apply specific configuration targets using standard `chezmoi` commands:
+### Reproducing `DietPi` Server & NAS
 
 ```bash
-# Preview changes before applying
-chezmoi diff --source ~/workspace/home-setup
+# 1. Clone repository
+git clone git@github.com:arnabbiswas1510/home-setup.git ~/workspace/home-setup
+cd ~/workspace/home-setup/dietpi
 
-# Check status of target files vs managed files
-chezmoi status --source ~/workspace/home-setup
+# 2. Run system setup & Samba share configuration
+sudo ./os-tweaks/setup_system.sh
+sudo ./os-tweaks/setup_samba_shares.sh
 
-# Re-apply configuration
-chezmoi apply --source ~/workspace/home-setup
+# 3. Set up Gitwatch & rsync backups
+sudo ./os-tweaks/setup_gitwatch.sh
+./os-tweaks/setup_rsync_cron.sh
+
+# 4. Launch Docker services
+cd docker
+cp .env.example .env
+nano .env
+docker compose up -d
 ```
 
 ---
 
-## 🔄 AI Prompt Maintenance Workflow
+## 🔄 Maintenance & Prompt Workflow
 
-Keep your machine states up to date over time by giving simple prompts to your AI assistant:
+To maintain machine states over time using your AI pair programmer:
 
-### Example Prompts:
-
-1. **Adding New Packages**:
-   > *"I just installed `ripgrep` on `nano`. Add it to `[hosts.nano]` in `.chezmoidata/hosts.toml` in my `home-setup` repo."*
-
-2. **Capturing Desktop Config Changes**:
-   > *"I updated my Konsole color profile on `nano`. Update `dot_local/share/konsole/MyProfile.profile` with the latest file from `~/.local/share/konsole/`."*
-
-3. **Adding a New Machine**:
-   > *"Create a new host section `[hosts.dietpi]` in `.chezmoidata/hosts.toml` for my DietPi server managing Docker and Tailscale."*
+- **Adding a Package on Nano**:
+  > *"I installed `htop` on Nano. Add it to `nano/.chezmoidata/hosts.toml` in my `home-setup` repo."*
+- **Updating Docker Compose on DietPi**:
+  > *"I updated the Jellyfin image on DietPi. Update `dietpi/docker/docker-compose.yml` in my `home-setup` repo."*
+- **Updating Dotfiles**:
+  > *"Sync my latest Konsole shortcuts from `~/.config/kglobalshortcutsrc` into `nano/dot_config/kglobalshortcutsrc`."*
