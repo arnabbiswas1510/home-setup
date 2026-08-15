@@ -6,7 +6,7 @@
         "height": 1349
     },
     "MPV_PLAYER_ARGUMENTS": "",
-    "VLC_PLAYER_ARGUMENTS": "",
+    "VLC_PLAYER_ARGUMENTS": "--http-user-agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\" --http-reconnect",
     "MPV_REUSE_INSTANCE": true,
     "VLC_REUSE_INSTANCE": true,
     "remoteControl": false,
