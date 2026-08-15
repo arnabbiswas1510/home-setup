@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Screen Locker
+Comment=Disable conflicting light-locker in KDE Plasma
+Hidden=true
