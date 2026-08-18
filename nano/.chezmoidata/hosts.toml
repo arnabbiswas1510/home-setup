@@ -40,7 +40,6 @@ apt_packages = [
 flatpak_apps = [
   "com.github.dynobo.normcap",
   "com.github.johnfactotum.Foliate",
-  "com.ktechpit.whatsie",
   "com.logseq.Logseq",
   "com.rcloneui.RcloneUI",
   "info.smplayer.SMPlayer",
@@ -80,7 +79,6 @@ apt_packages = [
 flatpak_apps = [
   "com.github.dynobo.normcap",
   "com.github.johnfactotum.Foliate",
-  "com.ktechpit.whatsie",
   "com.logseq.Logseq",
   "com.rcloneui.RcloneUI",
   "info.smplayer.SMPlayer",
