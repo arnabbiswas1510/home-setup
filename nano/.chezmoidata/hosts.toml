@@ -38,6 +38,7 @@ apt_packages = [
 ]
 
 flatpak_apps = [
+  "com.dec05eba.gpu_screen_recorder",
   "com.github.dynobo.normcap",
   "com.github.johnfactotum.Foliate",
   "com.logseq.Logseq",
@@ -78,6 +79,7 @@ apt_packages = [
   "tailscale"
 ]
 flatpak_apps = [
+  "com.dec05eba.gpu_screen_recorder",
   "com.github.dynobo.normcap",
   "com.github.johnfactotum.Foliate",
   "com.logseq.Logseq",
