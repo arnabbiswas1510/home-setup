@@ -267,3 +267,7 @@ _launch=Print
 
 [services][snipping-tool.desktop]
 _launch=Ctrl+Shift+S, Ctrl+Shift+S
+
+[services/whisper-dictate.desktop]
+_k_friendly_name=Whisper Dictation
+_launch=Meta+Alt+D,Meta+Alt+D,Whisper Dictation
