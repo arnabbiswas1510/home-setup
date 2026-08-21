@@ -122,18 +122,6 @@
    </metadata>
   </info>
  </bookmark>
- <bookmark href="trash:/">
-  <title>Trash</title>
-  <info>
-   <metadata owner="http://freedesktop.org">
-    <bookmark:icon name="user-trash"/>
-   </metadata>
-   <metadata owner="http://www.kde.org">
-    <ID>1785880758/5</ID>
-    <isSystemItem>true</isSystemItem>
-   </metadata>
-  </info>
- </bookmark>
  <bookmark href="recentlyused:/files">
   <title>Recent Files</title>
   <info>
@@ -175,6 +163,18 @@
    </metadata>
    <metadata owner="http://www.kde.org">
     <ID>192168150/0</ID>
+   </metadata>
+  </info>
+ </bookmark>
+ <bookmark href="trash:/">
+  <title>Trash</title>
+  <info>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="user-trash"/>
+   </metadata>
+   <metadata owner="http://www.kde.org">
+    <ID>1785880758/5</ID>
+    <isSystemItem>true</isSystemItem>
    </metadata>
   </info>
  </bookmark>
