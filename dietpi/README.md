@@ -22,7 +22,8 @@ dietpi/
 │   ├── setup_samba_shares.sh                    # smb.conf setup for media & home shares
 │   ├── setup_gitwatch.sh                        # Installs gitwatch to /usr/local/bin & systemd
 │   ├── setup_rsync_cron.sh                      # Crontab schedule for run-all-rsync.sh
-│   └── install_agy.sh                           # Standalone Antigravity CLI (agy) installer
+│   ├── install_agy.sh                           # Standalone Antigravity CLI (agy) installer
+│   └── install_ohmyzsh.sh                       # Zsh & Oh My Zsh installer
 └── docker/
     ├── docker-compose.yml                       # Unified multi-service Docker Compose stack
     ├── .env.example                             # Environment variable template for secrets & paths
