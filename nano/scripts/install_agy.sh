@@ -4,18 +4,30 @@
 # =============================================================================
 set -euo pipefail
 
-echo "1. Checking Antigravity CLI (agy)..."
-if command -v agy >/dev/null 2>&1; then
-    echo "Antigravity CLI (agy) is already installed at $(command -v agy)"
-    agy --version || true
-    exit 0
+echo "=== Installing Antigravity CLI (agy) on Nano ==="
+
+LOCAL_BIN="$HOME/.local/bin"
+mkdir -p "$LOCAL_BIN"
+
+if ! command -v agy >/dev/null 2>&1 && [ ! -f "$LOCAL_BIN/agy" ]; then
+    echo "--> Running official Antigravity CLI installer..."
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+else
+    echo "--> Antigravity CLI binary found at $LOCAL_BIN/agy"
 fi
 
-echo "2. Installing Antigravity CLI (agy)..."
-curl -fsSL https://antigravity.google/cli/install.sh | bash
+# Ensure ~/.local/bin is permanently added to all shell configuration files
+for rc_file in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
+    if [ -f "$rc_file" ]; then
+        if ! grep -q '\.local/bin' "$rc_file"; then
+            echo "--> Adding ~/.local/bin to PATH in $rc_file..."
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$rc_file"
+        fi
+    fi
+done
 
-# Ensure ~/.local/bin is in PATH for the current session
-export PATH="$HOME/.local/bin:$PATH"
-
-echo "Done! Antigravity CLI (agy) has been successfully installed."
-echo "Run 'agy' to start using the Antigravity CLI."
+echo ""
+echo "=== Antigravity CLI (agy) setup complete! ==="
+echo "To use 'agy' in your current shell session, run:"
+echo "  source ~/.zshrc    # (if using Zsh)"
+echo "  source ~/.bashrc   # (if using Bash)"
