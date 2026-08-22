@@ -1,16 +1,16 @@
 {
-    "WINDOW_BOUNDS": {
-        "x": 0,
-        "y": 0,
-        "width": 2159,
-        "height": 1349
-    },
-    "MPV_PLAYER_ARGUMENTS": "",
-    "VLC_PLAYER_ARGUMENTS": "--http-user-agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\" --http-reconnect",
-    "MPV_REUSE_INSTANCE": true,
-    "VLC_REUSE_INSTANCE": true,
-    "remoteControl": false,
-    "remoteControlPort": 8765,
-    "MPV_PLAYER_PATH": "/usr/bin/mpv",
-    "VLC_PLAYER_PATH": "/home/pom/.local/bin/vlc"
+	"WINDOW_BOUNDS": {
+		"x": 1,
+		"y": 1,
+		"width": 2159,
+		"height": 1349
+	},
+	"MPV_PLAYER_ARGUMENTS": "",
+	"VLC_PLAYER_ARGUMENTS": "--http-user-agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\" --http-reconnect",
+	"MPV_REUSE_INSTANCE": true,
+	"VLC_REUSE_INSTANCE": true,
+	"remoteControl": false,
+	"remoteControlPort": 8765,
+	"MPV_PLAYER_PATH": "/usr/bin/mpv",
+	"VLC_PLAYER_PATH": "/home/pom/.local/bin/vlc"
 }
