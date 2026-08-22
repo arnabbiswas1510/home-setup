@@ -25,14 +25,14 @@ home-setup/
 │   │   └── hosts.toml                           # Host package and service definitions
 │   ├── run_onchange_before_00-install-packages.sh.tmpl # Automated APT & Flatpak installer
 │   ├── run_onchange_after_10-setup-services.sh.tmpl   # Automated Systemd services setup
-│   ├── run_onchange_after_20-install-user-tools.sh.tmpl# yt-dlp & Deno tool installer
+│   ├── run_onchange_after_20-install-user-tools.sh.tmpl# yt-dlp, Deno, & Antigravity CLI (agy) installer
 │   ├── dot_bashrc                               # Shell configuration (~/.bashrc)
 │   ├── dot_profile                              # Login profile (~/.profile)
 │   ├── dot_config/                              # Konsole, KDE Plasma, IPTVnator, yt-dlp, qimgv, etc.
 │   ├── dot_gemini/                              # Antigravity MCP servers (Home Assistant, Garmin)
 │   ├── dot_local/                               # Custom launcher wrappers & Konsole profiles
 │   ├── os-tweaks/                               # Hardware fixes (DisplayLink EVDI, dock unfreeze, fastboot)
-│   └── scripts/                                 # Helper installers (Oh My Zsh, Plex, Syncthing)
+│   └── scripts/                                 # Helper installers (agy, Oh My Zsh, Plex, Syncthing)
 └── dietpi/                                      # DietPi server & NAS infrastructure
     ├── README.md                                # Server documentation & container port map
     ├── dot_bashrc                               # Server shell environment (~/.bashrc)
@@ -40,7 +40,7 @@ home-setup/
     ├── dot_gitconfig                            # Server git configuration (~/.gitconfig)
     ├── bin/                                     # Server scripts (run-all-rsync.sh)
     ├── gitwatch/                                # Inotify auto-commit & push service template
-    ├── os-tweaks/                               # System setup, Samba share exports, cron automation
+    ├── os-tweaks/                               # System setup (inc. agy), Samba shares, cron automation
     └── docker/                                  # Multi-service Docker Compose stacks
         ├── docker-compose.yml                   # Unified media, download, monitoring stack
         ├── .env.example                         # Environment variable template

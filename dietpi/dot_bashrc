@@ -17,3 +17,11 @@
 # alias rm='rm -i'
 # alias cp='cp -i'
 # alias mv='mv -i'
+
+# Ensure user private bin directories are in PATH (for Antigravity CLI and user binaries)
+if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+if [ -d "$HOME/bin" ] && [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+  export PATH="$HOME/bin:$PATH"
+fi
