@@ -529,9 +529,33 @@ services:
     environment:
       - MEILI_MASTER_KEY=JellyfinMeiliSmartSearchSecretKey2026!
       - MEILI_ENV=production
-      - MEILI_NO_ANALYTICS=true
     volumes:
       - ./config/meilisearch/data:/meili_data
+
+  stash:
+    image: stashapp/stash:latest
+    container_name: stash
+    restart: unless-stopped
+    ports:
+      - "9999:9999"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - STASH_STASH=/data/
+      - STASH_GENERATED=/generated/
+      - STASH_METADATA=/metadata/
+      - STASH_CACHE=/cache/
+      - STASH_PORT=9999
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/stash/config:/root/.stash
+      - ./config/stash/metadata:/metadata
+      - ./config/stash/cache:/cache
+      - ./config/stash/generated:/generated
+      - /mnt/books/tundru:/data/movies:ro
+    devices:
+      - /dev/dri:/dev/dri
 
   adminer:
     image: adminer

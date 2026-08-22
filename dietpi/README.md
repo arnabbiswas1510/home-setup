@@ -111,6 +111,7 @@ sudo systemctl enable --now gitwatch@$(systemd-escape /home/dietpi/obsidian).ser
 | **Emby Server** | `8096` | Alternative media server |
 | **Jellyfin** | `8097` | Open-source media system with Meilisearch |
 | **Meilisearch** | `7700` | Lightning fast search engine for Jellyfin |
+| **Stash** | `9999` | Adult media management server with scrapers & AI tagging |
 | **Adminer** | `8090` | Database management tool |
 | **Dawarich** | `3020` | Geolocation tracking server & maps |
 | **Omnivore Web / API**| `3010` / `4000` | Read-it-later article bookmarking |
