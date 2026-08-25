@@ -13,12 +13,11 @@ UUID=2943e049-3ac3-4e0a-8fbc-4db5c33f7e40 /               btrfs   defaults,subvo
 # /boot/efi was on /dev/nvme0n1p1 during installation
 UUID=D58C-661D  /boot/efi       vfat    umask=0077      0       1
 
+
 # NAS 192.168.1.50 Samba Shares
-//192.168.1.50/dietpi-home /mnt/dietpi-home cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
+//192.168.1.50/pom         /mnt/pom         cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
 //192.168.1.50/books       /mnt/books       cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
 //192.168.1.50/media1      /mnt/media1      cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
 //192.168.1.50/media2      /mnt/media2      cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
 //192.168.1.50/tvShows     /mnt/tvShows     cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
 //192.168.1.50/scratch     /mnt/scratch     cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
-//192.168.1.50/root /mnt/dietpi-root cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
-//192.168.1.50/dietpi      /mnt/dietpi      cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
