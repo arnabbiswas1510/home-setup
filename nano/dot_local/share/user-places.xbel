@@ -241,7 +241,7 @@
   <title>downloads</title>
   <info>
    <metadata owner="http://freedesktop.org">
-    <bookmark:icon name="inode-directory"/>
+    <bookmark:icon name="folder-download"/>
    </metadata>
    <metadata owner="http://www.kde.org">
     <ID>1785960009/0</ID>
