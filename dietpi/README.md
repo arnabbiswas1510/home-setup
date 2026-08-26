@@ -120,6 +120,7 @@ sudo systemctl enable --now gitwatch@$(systemd-escape /home/dietpi/obsidian).ser
 | **Tdarr Web UI** | `8265` | Audio/video transcoding node & coordinator |
 | **Logseq Sync Server**| `8790` | Self-hosted Logseq database sync |
 | **AdGuard Home** | `3000` / `53` (host) | Network-wide ad & tracker blocking DNS server |
+| **Tailscale** | Mesh VPN (host) | Zero-config remote access mesh network |
 | **Autoheal** | Background | Monitors and restarts unhealthy Docker containers |
 | **AI Trading Bot** | `8000` | Automated CAN SLIM trading execution system |
 | **Garmin AI Coach** | `8085` / `8001` | Garmin metrics analyzer & training dashboard |
