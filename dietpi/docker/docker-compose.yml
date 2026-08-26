@@ -157,7 +157,9 @@ services:
     container_name: autoheal
     restart: unless-stopped
     environment:
-      - AUTOHEAL_CONTAINER_LABEL=all
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=30
+      - AUTOHEAL_START_PERIOD=60
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -178,6 +180,8 @@ services:
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
+    labels:
+      - autoheal=true
     cap_add:
       - NET_ADMIN
     devices:
