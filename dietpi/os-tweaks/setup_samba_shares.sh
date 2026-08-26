@@ -19,117 +19,93 @@ echo "[2/4] Writing optimized Samba configuration..."
 cat << 'EOF' | sudo tee "$SMB_CONF" > /dev/null
 [global]
    workgroup = WORKGROUP
-   server string = DietPi NAS Server
+   server string = Samba Server
    security = user
-   map to guest = Bad User
-   dns proxy = no
-   log file = /var/log/samba/log.%m
-   max log size = 1000
-   logging = file
-   panic action = /usr/share/samba/panic-action %d
-   server role = standalone server
-   obey pam restrictions = yes
-   unix password sync = yes
-   passwd program = /usr/bin/passwd %u
-   passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
-   pam password change = yes
-   usershare allow guests = yes
-   
-   # Performance Tweaks
-   min receivefile size = 16384
-   use sendfile = yes
-   aio read size = 16384
-   aio write size = 16384
-   socket options = TCP_NODELAY IPTOS_LOWDELAY
+   map to guest = Never
 
-[dietpi]
-   path = /home/dietpi
+   # Compatibility with modern Windows / clients
+   server min protocol = SMB2
+   server max protocol = SMB3
+
+   # Disable printing
+   load printers = no
+   disable spoolss = yes
+   printing = bsd
+   printcap name = /dev/null
+
+#============================ Share Definitions ==============================
+
+[pom]
+   comment = Pom Home Directory
+   path = /home/pom
    read only = no
    browsable = yes
-   writable = yes
-   guest ok = no
-   create mask = 0775
+   valid users = pom
+   create mask = 0664
    directory mask = 0775
-   valid users = dietpi pom root
-
-[dietpi-home]
-   path = /home/dietpi
-   read only = no
-   browsable = yes
-   writable = yes
-   guest ok = no
-   create mask = 0775
-   directory mask = 0775
-   valid users = dietpi pom root
 
 [books]
+   comment = Books Library
    path = /mnt/books
    read only = no
    browsable = yes
-   writable = yes
-   guest ok = no
-   create mask = 0775
+   valid users = pom
+   create mask = 0664
    directory mask = 0775
-   valid users = dietpi pom root
 
 [media1]
+   comment = Media 1
    path = /mnt/media1
    read only = no
    browsable = yes
-   writable = yes
-   guest ok = no
-   create mask = 0775
+   valid users = pom
+   create mask = 0664
    directory mask = 0775
-   valid users = dietpi pom root
 
 [media2]
+   comment = Media 2
    path = /mnt/media2
    read only = no
    browsable = yes
-   writable = yes
-   guest ok = no
-   create mask = 0775
+   valid users = pom
+   create mask = 0664
    directory mask = 0775
-   valid users = dietpi pom root
+
+[photos]
+   comment = Photos
+   path = /mnt/photos
+   read only = no
+   browsable = yes
+   valid users = pom
+   create mask = 0664
+   directory mask = 0775
 
 [tvShows]
+   comment = TV Shows
    path = /mnt/tvShows
    read only = no
    browsable = yes
-   writable = yes
-   guest ok = no
-   create mask = 0775
+   valid users = pom
+   create mask = 0664
    directory mask = 0775
-   valid users = dietpi pom root
 
 [scratch]
+   comment = Scratch Storage
    path = /mnt/scratch
    read only = no
    browsable = yes
-   writable = yes
-   guest ok = no
-   create mask = 0775
+   valid users = pom
+   create mask = 0664
    directory mask = 0775
-   valid users = dietpi pom root
-
-[root]
-   path = /
-   read only = no
-   browsable = yes
-   writable = yes
-   guest ok = no
-   create mask = 0775
-   directory mask = 0775
-   valid users = root dietpi pom
 EOF
 
 echo "[3/4] Ensuring export directories exist with appropriate permissions..."
-sudo mkdir -p /mnt/media1 /mnt/media2 /mnt/tvShows /mnt/books /mnt/scratch /mnt/photos
+sudo mkdir -p /mnt/media1 /mnt/media2 /mnt/tvShows /mnt/books /mnt/scratch /mnt/photos /mnt/backup
 
 echo "[4/4] Restarting Samba services..."
 sudo systemctl restart smbd nmbd
 
 echo ""
 echo "=== Samba Shares Configured Successfully! ==="
-echo "Make sure to set Samba password for the dietpi user if not already configured:"
-echo "  sudo smbpasswd -a dietpi"
+echo "Make sure to set Samba password for the pom user if not already configured:"
+echo "  sudo smbpasswd -a pom"
