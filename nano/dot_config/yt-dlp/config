@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # Download Location and Filename Template
 # ------------------------------------------------------------------------------
--o "~/Downloads/YouTube/%(playlist_title,uploader)s/%(title)s [%(id)s].%(ext)s"
+-o "%(title)s [%(id)s].%(ext)s"
 
 # ------------------------------------------------------------------------------
 # Format Selection (Flexible format selector: gets best video and audio)
