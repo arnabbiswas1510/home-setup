@@ -88,6 +88,7 @@
     ]
   },
   "trustedWorkspaces": [
-    "/home/pom"
+    "/home/pom",
+    "/home/pom/Desktop"
   ]
 }
