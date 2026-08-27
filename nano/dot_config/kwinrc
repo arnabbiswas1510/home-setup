@@ -46,7 +46,7 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 BorderWidth=2
 
 [Xwayland]
-Scale=1
+Scale=1.45
 
 [org.kde.kdecoration2]
 BorderSizeAuto=false
