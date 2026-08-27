@@ -9,7 +9,7 @@
 #
 # <file system> <mount point>   <type>  <options>       <dump>  <pass>
 # / was on /dev/nvme0n1p2 during installation
-UUID=2943e049-3ac3-4e0a-8fbc-4db5c33f7e40 /               btrfs   defaults,subvol=@rootfs 0       0
+UUID=2943e049-3ac3-4e0a-8fbc-4db5c33f7e40 /               btrfs   defaults,compress=zstd:1,subvol=@rootfs 0       0
 # /boot/efi was on /dev/nvme0n1p1 during installation
 UUID=D58C-661D  /boot/efi       vfat    umask=0077      0       1
 
