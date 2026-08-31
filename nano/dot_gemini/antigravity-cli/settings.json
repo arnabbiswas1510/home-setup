@@ -84,7 +84,8 @@
       "command(kquitapp6)",
       "command(pgrep)",
       "command(plasma-apply-lookandfeel)",
-      "command(find ~ -maxdepth 3 -name \"*.json\" 2\u003e\u00261)"
+      "command(find ~ -maxdepth 3 -name \"*.json\" 2\u003e\u00261)",
+      "command(ssh pom@192.168.1.50 \"docker logs --tail 30 gluetun\")"
     ]
   },
   "trustedWorkspaces": [
