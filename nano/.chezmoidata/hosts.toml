@@ -51,6 +51,7 @@ flatpak_apps = [
   "org.jellyfin.JellyfinDesktop",
   "org.kde.falkon",
   "org.videolan.VLC",
+  "org.winehq.Wine",
   "tv.plex.PlexDesktop",
   "us.zoom.Zoom"
 ]
@@ -93,6 +94,7 @@ flatpak_apps = [
   "org.jellyfin.JellyfinDesktop",
   "org.kde.falkon",
   "org.videolan.VLC",
+  "org.winehq.Wine",
   "tv.plex.PlexDesktop",
   "us.zoom.Zoom"
 ]
