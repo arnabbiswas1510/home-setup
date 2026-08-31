@@ -1,5 +1,5 @@
 {
     "python.languageServer": "Default",
     "antigravityLink.autoStart": true,
-    "antigravityLink.useHttps": false
+    "antigravityLink.useHttps": true
 }
