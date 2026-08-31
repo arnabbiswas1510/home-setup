@@ -144,7 +144,7 @@
   </info>
  </separator>
  <bookmark href="file:///mnt">
-  <title>NAS</title>
+  <title>Storage</title>
   <info>
    <metadata owner="http://freedesktop.org">
     <bookmark:icon name="folder-network"/>
