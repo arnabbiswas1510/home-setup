@@ -154,7 +154,7 @@
    </metadata>
   </info>
  </bookmark>
- <bookmark href="sftp://aostar/home/pom/docker/config/qbittorrent/downloads">
+ <bookmark href="sftp://pom@192.168.1.50/home/pom/docker/config/qbittorrent/downloads">
   <title>torrents</title>
   <info>
    <metadata owner="http://freedesktop.org">
