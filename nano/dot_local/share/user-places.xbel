@@ -143,17 +143,28 @@
    </metadata>
   </info>
  </separator>
- <bookmark href="file:///mnt">
-  <title>Storage</title>
-  <info>
-   <metadata owner="http://freedesktop.org">
-    <bookmark:icon name="folder-network"/>
-   </metadata>
-   <metadata owner="http://www.kde.org">
-    <ID>192168150/0</ID>
-   </metadata>
-  </info>
- </bookmark>
+  <bookmark href="file:///mnt">
+   <title>Storage</title>
+   <info>
+    <metadata owner="http://freedesktop.org">
+     <bookmark:icon name="folder-network"/>
+    </metadata>
+    <metadata owner="http://www.kde.org">
+     <ID>192168150/0</ID>
+    </metadata>
+   </info>
+  </bookmark>
+  <bookmark href="sftp://aostar/home/pom/docker/config/qbittorrent/downloads">
+   <title>torrents</title>
+   <info>
+    <metadata owner="http://freedesktop.org">
+     <bookmark:icon name="folder-network"/>
+    </metadata>
+    <metadata owner="http://www.kde.org">
+     <ID>1788310500/0</ID>
+    </metadata>
+   </info>
+  </bookmark>
  <bookmark href="trash:/">
   <title>Trash</title>
   <info>
