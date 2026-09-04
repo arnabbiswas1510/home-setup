@@ -90,6 +90,7 @@
   },
   "trustedWorkspaces": [
     "/home/pom",
-    "/home/pom/Desktop"
+    "/home/pom/Desktop",
+    "/home/pom/Downloads"
   ]
 }
