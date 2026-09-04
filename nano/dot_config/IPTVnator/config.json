@@ -1,9 +1,9 @@
 {
 	"WINDOW_BOUNDS": {
-		"x": 1,
+		"x": 0,
 		"y": 0,
-		"width": 2159,
-		"height": 1350
+		"width": 1666,
+		"height": 1041
 	},
 	"MPV_PLAYER_ARGUMENTS": "",
 	"VLC_PLAYER_ARGUMENTS": "",
