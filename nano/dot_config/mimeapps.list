@@ -3,6 +3,7 @@ application/epub+zip=mupdf.desktop;atril.desktop;com.github.johnfactotum.Foliate
 image/jpeg=qimgv.desktop;feh.desktop;org.kde.gwenview.desktop;org.gnome.Loupe.desktop;display-im7.q16.desktop;okularApplication_kimgio.desktop;org.xfce.ristretto.desktop;firefox-esr.desktop;org.gnome.Shotwell-Viewer.desktop;com.google.Chrome.desktop;gimp.desktop;lximage-qt.desktop;google-chrome.desktop;
 video/mp4=info.smplayer.SMPlayer.desktop;org.kde.dragonplayer.desktop;org.gnome.Totem.desktop;io.mpv.Mpv.desktop;
 video/vnd.avi=info.smplayer.SMPlayer.desktop;org.kde.dragonplayer.desktop;org.gnome.Totem.desktop;io.mpv.Mpv.desktop;
+video/x-matroska=info.smplayer.SMPlayer.desktop;org.avidemux.Avidemux.desktop;smplayer_enqueue.desktop;io.mpv.Mpv.desktop;mpv.desktop;org.gnome.Totem.desktop;org.xfce.Parole.desktop;org.videolan.VLC.desktop;smplayer.desktop;
 x-scheme-handler/http=firefox-esr.desktop;
 x-scheme-handler/https=firefox-esr.desktop;
 
@@ -18,6 +19,7 @@ image/jpeg=qimgv.desktop;
 text/html=google-chrome.desktop
 video/mp4=info.smplayer.SMPlayer.desktop;
 video/vnd.avi=info.smplayer.SMPlayer.desktop;
+video/x-matroska=info.smplayer.SMPlayer.desktop;
 x-scheme-handler/antigravity=antigravity.desktop
 x-scheme-handler/http=google-chrome.desktop
 x-scheme-handler/https=google-chrome.desktop
