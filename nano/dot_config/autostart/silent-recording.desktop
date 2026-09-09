@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Silent Recording Sink
+Exec=pactl load-module module-null-sink sink_name=SilentRecording sink_properties=device.description="Silent_Recording"
+Hidden=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
