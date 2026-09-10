@@ -1,5 +1,3 @@
-version: "3.4"
-
 services:
   tdarr:
     container_name: tdarr
@@ -24,6 +22,11 @@ services:
       - /mnt/media1:/media1
       - /mnt/media2:/media2
       - /mnt/tvShows:/tvShows
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - "992"
+      - "44"
 
   tdarr-node:
     container_name: tdarr-node
@@ -48,5 +51,8 @@ services:
       - /mnt/tvShows:/tvShows
     devices:
       - /dev/dri:/dev/dri
+    group_add:
+      - "992"
+      - "44"
     depends_on:
       - tdarr

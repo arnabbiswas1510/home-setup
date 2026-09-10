@@ -15,5 +15,10 @@ fi
 echo "3. Changing default shell to Zsh..."
 sudo chsh -s "$(which zsh)" "$USER"
 
+# Ensure ~/.local/bin is in PATH for Zsh
+if [ -f "$HOME/.zshrc" ] && ! grep -q '\.local/bin' "$HOME/.zshrc"; then
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+fi
+
 echo "Done! Oh My Zsh has been installed and set as your default shell."
 echo "Log out and log back in (or run 'zsh') to start using Oh My Zsh."

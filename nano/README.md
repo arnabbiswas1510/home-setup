@@ -13,7 +13,7 @@ nano/
 │   └── hosts.toml                               # APT packages, repos, and service definitions for Nano
 ├── run_onchange_before_00-install-packages.sh.tmpl # Automated APT & Flatpak installer
 ├── run_onchange_after_10-setup-services.sh.tmpl   # Automated Systemd services setup
-├── run_onchange_after_20-install-user-tools.sh.tmpl# yt-dlp & Deno tool installer
+├── run_onchange_after_20-install-user-tools.sh.tmpl# yt-dlp, Deno, & Antigravity CLI (agy) installer
 ├── dot_bashrc                                   # Shell environment (~/.bashrc)
 ├── dot_profile                                  # User profile (~/.profile)
 ├── dot_config/
@@ -58,6 +58,7 @@ nano/
 │   ├── optimize_boot.sh                         # GRUB fastboot & CIFS automount timeout optimization
 │   └── setup_nas_mounts.sh                      # /etc/fstab CIFS mount setup for DietPi NAS
 └── scripts/
+    ├── install_agy.sh                           # Antigravity CLI (agy) standalone installer
     ├── install_ohmyzsh.sh                       # Zsh & Oh-My-Zsh unattended setup
     ├── install_plex.sh                          # Plex Desktop flatpak installation
     └── install_syncthing.sh                     # Syncthing user service installer

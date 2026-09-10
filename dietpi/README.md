@@ -18,10 +18,12 @@ dietpi/
 │   ├── gitwatch.sh                              # Inotify-based Git auto-commit & push script
 │   └── gitwatch@.service                        # Systemd unit template for watching git directories
 ├── os-tweaks/
-│   ├── setup_system.sh                          # Base packages, Docker CE, Tailscale, & storage dirs
+│   ├── setup_system.sh                          # Base packages, Docker CE, Tailscale, agy, & storage dirs
 │   ├── setup_samba_shares.sh                    # smb.conf setup for media & home shares
 │   ├── setup_gitwatch.sh                        # Installs gitwatch to /usr/local/bin & systemd
-│   └── setup_rsync_cron.sh                      # Crontab schedule for run-all-rsync.sh
+│   ├── setup_rsync_cron.sh                      # Crontab schedule for run-all-rsync.sh
+│   ├── install_agy.sh                           # Standalone Antigravity CLI (agy) installer
+│   └── install_ohmyzsh.sh                       # Zsh & Oh My Zsh installer
 └── docker/
     ├── docker-compose.yml                       # Unified multi-service Docker Compose stack
     ├── .env.example                             # Environment variable template for secrets & paths
@@ -63,7 +65,7 @@ To set up a fresh DietPi server:
 git clone git@github.com:arnabbiswas1510/home-setup.git ~/workspace/home-setup
 cd ~/workspace/home-setup/dietpi
 
-# 2. Run system setup (installs Docker, Tailscale, Samba, rsync)
+# 2. Run system setup (installs Docker, Tailscale, Samba, rsync, Antigravity CLI)
 sudo ./os-tweaks/setup_system.sh
 
 # 3. Configure Samba shares (exports /mnt/media1, /mnt/media2, /mnt/books, etc.)
@@ -111,11 +113,15 @@ sudo systemctl enable --now gitwatch@$(systemd-escape /home/dietpi/obsidian).ser
 | **Emby Server** | `8096` | Alternative media server |
 | **Jellyfin** | `8097` | Open-source media system with Meilisearch |
 | **Meilisearch** | `7700` | Lightning fast search engine for Jellyfin |
+| **Stash** | `9999` | Adult media management server with scrapers & AI tagging |
 | **Adminer** | `8090` | Database management tool |
 | **Dawarich** | `3020` | Geolocation tracking server & maps |
 | **Omnivore Web / API**| `3010` / `4000` | Read-it-later article bookmarking |
 | **Tdarr Web UI** | `8265` | Audio/video transcoding node & coordinator |
 | **Logseq Sync Server**| `8790` | Self-hosted Logseq database sync |
+| **AdGuard Home** | `3000` / `53` (host) | Network-wide ad & tracker blocking DNS server |
+| **Tailscale** | Mesh VPN (host) | Zero-config remote access mesh network |
+| **Autoheal** | Background | Monitors and restarts unhealthy Docker containers |
 | **AI Trading Bot** | `8000` | Automated CAN SLIM trading execution system |
 | **Garmin AI Coach** | `8085` / `8001` | Garmin metrics analyzer & training dashboard |
 

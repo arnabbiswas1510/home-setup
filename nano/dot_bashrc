@@ -113,6 +113,12 @@ if ! shopt -oq posix; then
 fi
 
 # Added by Antigravity CLI installer
+<<<<<<< HEAD
 export PATH="/home/pom/.local/bin:$PATH"
 
 export PATH="/home/pom/workspace/vidsniff/vidsniff/.venv/bin:$PATH"  # vidsniff
+=======
+if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+>>>>>>> origin/main

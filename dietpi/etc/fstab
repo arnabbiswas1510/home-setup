@@ -1,0 +1,34 @@
+# You can use "dietpi-drive_manager" to setup mounts.
+# NB: It overwrites and re-creates physical drive mount entries on use.
+#----------------------------------------------------------------
+# NETWORK
+#----------------------------------------------------------------
+
+
+#----------------------------------------------------------------
+# TMPFS
+#----------------------------------------------------------------
+
+
+#----------------------------------------------------------------
+# MISC: ecryptfs, vboxsf, glusterfs, mergerfs, bind, Btrfs subvolume
+#----------------------------------------------------------------
+
+
+#----------------------------------------------------------------
+# SWAP SPACE
+#----------------------------------------------------------------
+UUID=5b7806fc-79dd-401d-868b-122f99220a8c none swap sw 0 0
+
+#----------------------------------------------------------------
+# PHYSICAL DRIVES
+#----------------------------------------------------------------
+UUID=f8b97504-d981-42e0-8241-065d511b3264 / ext4 noatime,lazytime,rw 0 1
+UUID=4F32-BC94 /boot/efi vfat umask=0077 0 1
+UUID=697F-B5C9 /mnt/media2 exfat noatime,lazytime,rw,gid=pom,fmask=0002,dmask=0002,noauto,x-systemd.automount
+UUID=FFD7-BC4C /mnt/scratch exfat noatime,lazytime,rw,gid=pom,fmask=0002,dmask=0002,noauto,x-systemd.automount
+UUID=FD4E-DB6E /mnt/media1 exfat noatime,lazytime,rw,gid=pom,fmask=0002,dmask=0002,noauto,x-systemd.automount
+UUID=EB9F-3F1F /mnt/tvShows exfat noatime,lazytime,rw,gid=pom,fmask=0002,dmask=0002,noauto,x-systemd.automount
+UUID=6FFE-7738 /mnt/photos exfat noatime,lazytime,rw,gid=pom,fmask=0002,dmask=0002,noauto,x-systemd.automount
+UUID=EBBB-FFBD /mnt/books exfat noatime,lazytime,rw,gid=pom,fmask=0002,dmask=0002,noauto,x-systemd.automount
+UUID=b15ae073-f526-4ecc-9e2b-cf3416b46be2 /mnt/backup ext4 noatime,lazytime,rw,noauto,x-systemd.automount 0 0

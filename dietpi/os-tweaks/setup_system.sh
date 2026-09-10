@@ -4,7 +4,7 @@
 # =============================================================================
 set -euo pipefail
 
-echo "=== [1/5] Updating APT and installing core server tools ==="
+echo "=== [1/6] Updating APT and installing core server tools ==="
 sudo apt-get update
 sudo apt-get install -y \
   curl \
@@ -22,7 +22,7 @@ sudo apt-get install -y \
   lsb-release \
   apt-transport-https
 
-echo "=== [2/5] Installing Docker and Docker Compose ==="
+echo "=== [2/6] Installing Docker and Docker Compose ==="
 if ! command -v docker >/dev/null 2>&1; then
   echo "--> Setting up Docker official APT repository..."
   sudo install -m 0755 -d /etc/apt/keyrings
@@ -41,19 +41,31 @@ fi
 echo "--> Ensuring docker group membership for $USER..."
 sudo usermod -aG docker "$USER" || true
 
-echo "=== [3/5] Installing and Configuring Tailscale ==="
+echo "=== [3/6] Installing and Configuring Tailscale ==="
 if ! command -v tailscale >/dev/null 2>&1; then
   curl -fsSL https://tailscale.com/install.sh | sh
 fi
 sudo systemctl enable --now tailscaled
 
-echo "=== [4/5] Enabling Core System Services ==="
+echo "=== [4/6] Enabling Core System Services ==="
 sudo systemctl enable --now docker
 sudo systemctl enable --now smbd nmbd
 
-echo "=== [5/5] Creating Standard Storage Directories ==="
+echo "=== [5/6] Creating Standard Storage Directories ==="
 sudo mkdir -p /mnt/media1 /mnt/media2 /mnt/tvShows /mnt/books /mnt/scratch /mnt/photos
 sudo chown -R 1000:1000 /mnt/media1 /mnt/media2 /mnt/tvShows /mnt/books /mnt/scratch /mnt/photos || true
+
+echo "=== [6/6] Installing Antigravity CLI (agy) ==="
+if ! command -v agy >/dev/null 2>&1 && [ ! -f "$HOME/.local/bin/agy" ]; then
+  echo "--> Installing Antigravity CLI (agy)..."
+  if [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]; then
+    sudo -u "$SUDO_USER" -i bash -c "curl -fsSL https://antigravity.google/cli/install.sh | bash"
+  else
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+  fi
+else
+  echo "--> Antigravity CLI (agy) is already installed."
+fi
 
 echo ""
 echo "=== DietPi System Setup Complete! ==="

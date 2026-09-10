@@ -2,6 +2,8 @@ version: '3.8'
 
 services:
   ib-gateway:
+    profiles:
+      - trading
     image: heshiming/ibga@sha256:82bba0d8befb40720b4e70be604ca57cc234cc4930ddbaf5cc45ed6f41e586c9
     container_name: ib-gateway
     restart: unless-stopped
@@ -26,6 +28,8 @@ services:
       - trading_bridge
 
   execution-agent:
+    profiles:
+      - trading
     image: ghcr.io/arnabbiswas1510/ai-trading-bot-execution-agent:latest
     container_name: execution-agent
     restart: unless-stopped
@@ -47,13 +51,20 @@ services:
       - trading_bridge
 
   trading-bot:
+    profiles:
+      - trading
     image: ghcr.io/arnabbiswas1510/ai-trading-bot:latest
     container_name: can-slim-trading-bot
     ports:
       - "8000:8000"
     volumes:
       - bot-data:/app/data
-      - /home/dietpi/docker/ai-trading-bot/frontend/dist:/app/frontend/dist  # hot-swap built UI
+      # NOTE: do NOT bind-mount frontend/dist here. The compiled UI ships inside
+      # the image (Dockerfile stage 1 runs `npm run build`, gated by
+      # scripts/verify-build.mjs). A host bind mount shadows that directory, and
+      # because `dist/` is gitignored the host copy is never refreshed by the
+      # deploy's `git reset --hard origin/main` — so the dashboard silently
+      # serves whatever bundle was last built by hand on the box, forever.
     restart: unless-stopped
     env_file:
       - .env

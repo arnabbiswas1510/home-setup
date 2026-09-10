@@ -17,4 +17,10 @@ if ! command -v deno >/dev/null 2>&1 && [ ! -f "$HOME/.deno/bin/deno" ]; then
     curl -fsSL https://deno.land/install.sh | sh
 fi
 
+# 3. Install Antigravity CLI (agy) if not present
+if ! command -v agy >/dev/null 2>&1 && [ ! -f "$LOCAL_BIN/agy" ]; then
+    echo "--> Installing Antigravity CLI (agy)..."
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+fi
+
 echo "==== User CLI tools setup complete ===="
