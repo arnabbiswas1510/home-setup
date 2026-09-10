@@ -114,3 +114,41 @@ sudo ./os-tweaks/optimize_boot.sh
 ```bash
 sudo ./os-tweaks/setup_nas_mounts.sh
 ```
+
+---
+
+## 🔄 Pain-Free Fedora Migration Runbook
+
+To migrate the `Nano` workstation from Debian 13 to **Fedora KDE Plasma Spin**:
+
+### Phase 1: Pre-Migration Backup (Fail-Safe Snapshot)
+Run the automated backup script to rsync `/home/pom` and system configs to DietPi NAS (`/mnt/media1`):
+```bash
+cd ~/workspace/home-setup/nano/scripts
+./pre_migration_backup.sh
+```
+
+### Phase 2: Install Fedora KDE Plasma Edition
+1. Download **Fedora KDE Plasma Desktop x86_64 ISO** and write to USB.
+2. Boot USB installer (Anaconda):
+   - Select NVMe drive.
+   - Choose default **Btrfs** partitioning (creates clean, isolated `@root` and `@home` subvolumes with transparent zstd compression).
+   - Create user `pom` with administrative privileges.
+
+### Phase 3: Post-Install Instant Bootstrap
+Boot into the new Fedora install, open Konsole, and run:
+```bash
+# Clone home-setup (or restore ~/workspace/home-setup from NAS backup)
+git clone git@github.com:arnabbiswas1510/home-setup.git ~/workspace/home-setup
+cd ~/workspace/home-setup/nano/scripts
+./bootstrap_fedora.sh
+```
+
+This single command:
+1. Enables RPM Fusion (Free & Nonfree) and vendor repos (Google Chrome, Sublime Text, Tailscale).
+2. Installs all DNF package equivalents & multimedia codecs.
+3. Installs all 16 Flatpaks from Flathub.
+4. Mounts DietPi NAS CIFS shares in `/etc/fstab`.
+5. Applies ThinkPad X1 Nano tweaks (Intel GPU PSR fix, DisplayLink EVDI Wayland, dracut).
+6. Restores dotfiles with chezmoi.
+7. Enables all systemd background services and timers (`syncthing`, `rclone-gdrive`, `autosync`, `auto-rename-recordings`, etc.).
