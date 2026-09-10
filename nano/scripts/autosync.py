@@ -39,6 +39,7 @@ CONFIG_MAP = {
     HOME / ".gemini" / "antigravity-cli" / "settings.json": NANO_DIR / "dot_gemini" / "antigravity-cli" / "settings.json",
     HOME / ".gemini" / "antigravity-ide" / "settings.json": NANO_DIR / "dot_gemini" / "antigravity-ide" / "settings.json",
     HOME / ".gemini" / "config" / "mcp_config.json": NANO_DIR / "dot_gemini" / "config" / "mcp_config.json",
+    HOME / ".local" / "bin" / "daily-user-update.sh": NANO_DIR / "dot_local" / "bin" / "executable_daily-user-update.sh",
 }
 
 # Directories to mirror recursively

@@ -1,0 +1,14 @@
+[Unit]
+Description=Intel IPU6 Dynamic Webcam Manager
+After=pipewire.service wireplumber.service
+Wants=pipewire.service
+
+[Service]
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/pom/.local/bin/ipu6-webcam-manager.py
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

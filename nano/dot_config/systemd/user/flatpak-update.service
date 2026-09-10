@@ -1,0 +1,8 @@
+[Unit]
+Description=Daily automatic update of Flatpaks, CLI tools, and user software
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/pom/.local/bin/daily-user-update.sh

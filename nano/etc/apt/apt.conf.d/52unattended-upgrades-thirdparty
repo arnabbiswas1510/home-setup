@@ -1,0 +1,7 @@
+Unattended-Upgrade::Origins-Pattern {
+    "origin=Debian,codename=${distro_codename}-updates";
+    "origin=Google LLC";
+    "origin=Sublime Text";
+    "origin=Tailscale";
+    "origin=Synaptics Inc";
+};

@@ -1,0 +1,6 @@
+[Unit]
+Description=Automated Cache Cleaner Service
+
+[Service]
+Type=oneshot
+ExecStart=/home/pom/.local/bin/clean-cache.sh

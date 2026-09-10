@@ -1,0 +1,12 @@
+[Unit]
+Description=Auto-rename GPU Screen Recorder recordings from Firefox video title
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/pom/auto-rename-recording.py --watch
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

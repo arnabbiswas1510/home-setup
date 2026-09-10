@@ -1,0 +1,14 @@
+[Unit]
+Description=Home Setup Auto-Sync Daemon for Nano
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/pom/workspace/home-setup/nano/scripts/autosync.py
+Restart=always
+RestartSec=10
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=default.target

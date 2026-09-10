@@ -1,0 +1,22 @@
+[Unit]
+Description=RClone Google Drive Mount
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/rclone mount gdrive: %h/GoogleDrive \
+  --vfs-cache-mode full \
+  --vfs-cache-max-age 24h \
+  --vfs-read-chunk-size 64M \
+  --vfs-read-chunk-size-limit 2G \
+  --buffer-size 32M \
+  --drive-export-formats link.html \
+  --volname "Google Drive"
+ExecStop=/usr/bin/fusermount3 -u %h/GoogleDrive
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+
