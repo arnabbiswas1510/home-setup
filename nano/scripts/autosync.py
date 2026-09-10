@@ -45,6 +45,7 @@ CONFIG_MAP = {
 # Directories to mirror recursively
 DIR_MAP = {
     HOME / ".config" / "autostart": NANO_DIR / "dot_config" / "autostart",
+    HOME / ".config" / "systemd" / "user": NANO_DIR / "dot_config" / "systemd" / "user",
 }
 
 # System /etc files tracked in repo
