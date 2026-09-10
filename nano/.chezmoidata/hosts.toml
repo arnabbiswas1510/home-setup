@@ -37,6 +37,42 @@ apt_packages = [
   "zram-tools"
 ]
 
+dnf_packages = [
+  "@development-tools",
+  "curl",
+  "wget",
+  "git",
+  "zsh",
+  "lsof",
+  "rclone",
+  "snapper",
+  "btrfs-progs",
+  "wl-clipboard",
+  "qimgv",
+  "feh",
+  "flatpak",
+  "dkms",
+  "kernel-devel",
+  "ca-certificates",
+  "gnupg2",
+  "google-chrome-stable",
+  "sublime-text",
+  "tailscale",
+  "syncthing",
+  "cifs-utils",
+  "btop",
+  "nvtop",
+  "htop",
+  "tmux",
+  "lz4",
+  "lz4-devel",
+  "intel-media-driver",
+  "libva-intel-driver",
+  "ffmpeg",
+  "gstreamer1-plugins-good",
+  "gstreamer1-plugins-bad-free"
+]
+
 flatpak_apps = [
   "com.dec05eba.gpu_screen_recorder",
   "com.github.dynobo.normcap",
