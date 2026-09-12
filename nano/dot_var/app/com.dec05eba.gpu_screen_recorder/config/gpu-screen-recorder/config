@@ -3,11 +3,11 @@ main.audio_codec opus
 main.audio_input device:Monitor of Silent_Recording
 main.av1_amd_bug_warning_shown false
 main.change_video_resolution true
-main.codec hevc
+main.codec h264_software
 main.color_range limited
 main.exclude_metadata false
 main.fps 30
-main.framerate_mode content
+main.framerate_mode auto
 main.hevc_amd_bug_warning_shown false
 main.hide_window_when_recording false
 main.installed_gsr_global_hotkeys_version 0
@@ -22,7 +22,7 @@ main.restore_portal_session true
 main.show_recording_saved_notifications true
 main.show_recording_started_notifications false
 main.show_recording_stopped_notifications false
-main.software_encoding_warning_shown false
+main.software_encoding_warning_shown true
 main.use_new_ui false
 main.video_bitrate 15000
 main.video_height 1080
