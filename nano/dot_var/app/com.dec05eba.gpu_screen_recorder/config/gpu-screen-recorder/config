@@ -2,17 +2,17 @@ main.advanced_view true
 main.audio_codec opus
 main.audio_input device:Monitor of Silent_Recording
 main.av1_amd_bug_warning_shown false
-main.change_video_resolution false
-main.codec auto
+main.change_video_resolution true
+main.codec hevc
 main.color_range limited
 main.exclude_metadata false
-main.fps 60
-main.framerate_mode auto
+main.fps 30
+main.framerate_mode content
 main.hevc_amd_bug_warning_shown false
 main.hide_window_when_recording false
 main.installed_gsr_global_hotkeys_version 0
 main.merge_audio_tracks true
-main.quality very_high
+main.quality high
 main.record_app_audio_inverted false
 main.record_area_height 1080
 main.record_area_option portal
