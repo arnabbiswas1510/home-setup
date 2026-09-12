@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Batch Video Recorder
+GenericName=Batch Video Recorder
+Comment=Queue URLs to automatically play on Desktop 2 and screen record via GPU
+Exec=/home/pom/batch-recorder.py
+Icon=media-record
+Terminal=false
+Categories=AudioVideo;Recorder;
+Keywords=record;screen;batch;queue;urls;firefox;video;

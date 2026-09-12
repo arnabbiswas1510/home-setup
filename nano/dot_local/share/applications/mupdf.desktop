@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=MuPDF
+GenericName=PDF / Comic Reader
+Comment=Fast and lightweight PDF and Comic viewer
+Exec=/home/pom/.local/bin/mupdf-gl %f
+Icon=mupdf
+Terminal=false
+Type=Application
+Categories=Office;Graphics;Viewer;
+MimeType=application/pdf;application/x-pdf;application/x-cbz;application/x-cbr;application/vnd.comicbook+zip;application/vnd.comicbook-rar;application/epub+zip;application/x-fictionbook+xml;

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec flatpak run --command=wine org.winehq.Wine /home/pom/.local/share/cimfax/FaxBox.exe "$@"

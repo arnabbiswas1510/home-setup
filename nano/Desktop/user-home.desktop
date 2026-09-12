@@ -1,0 +1,6 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Type=Application
+Exec=pcmanfm-qt /home/pom
+Icon=user-home
+Name=pom

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Audio Switcher (Silent Recording)
+Comment=Toggle individual apps between Speakers and Silent Recording
+Exec=/home/pom/toggle-silent-app.py
+Icon=audio-volume-muted
+Terminal=false
+GenericName=Audio Switcher
+Keywords=audio;switcher;silent;mute;sound;record;
+Categories=AudioVideo;Audio;

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Antigravity 2.0
+GenericName=AI Agent Platform
+Comment=AI-First Multi-Agent Orchestration Desktop
+Exec=/home/pom/.local/share/antigravity-app/antigravity %U
+Icon=/home/pom/.local/share/antigravity-ide/resources/app/resources/linux/code.png
+Terminal=false
+Type=Application
+Categories=Development;IDE;
+StartupWMClass=antigravity

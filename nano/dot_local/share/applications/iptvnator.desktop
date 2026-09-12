@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=IPTVnator
+Comment=IPTV player application
+Exec=/home/pom/.local/bin/iptvnator --ozone-platform=x11 %U
+Icon=/home/pom/.local/lib/iptvnator/iptvnator.png
+Terminal=false
+Type=Application
+StartupWMClass=iptvnator
+Categories=Video;AudioVideo;Player;TV;
+Keywords=iptv;tv;m3u;stream;player;

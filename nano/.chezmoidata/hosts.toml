@@ -70,7 +70,8 @@ dnf_packages = [
   "libva-intel-driver",
   "ffmpeg",
   "gstreamer1-plugins-good",
-  "gstreamer1-plugins-bad-free"
+  "gstreamer1-plugins-bad-free",
+  "kde-plasma-addons"
 ]
 
 flatpak_apps = [

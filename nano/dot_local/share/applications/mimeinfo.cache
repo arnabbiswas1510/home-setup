@@ -1,0 +1,26 @@
+[MIME Cache]
+application/epub+zip=mupdf.desktop;
+application/pdf=google-chrome.desktop;mupdf.desktop;
+application/rdf+xml=google-chrome.desktop;
+application/rss+xml=google-chrome.desktop;
+application/vnd.comicbook+zip=mupdf.desktop;
+application/vnd.comicbook-rar=mupdf.desktop;
+application/x-cbr=mupdf.desktop;
+application/x-cbz=mupdf.desktop;
+application/x-fictionbook+xml=mupdf.desktop;
+application/x-pdf=mupdf.desktop;
+application/xhtml+xml=google-chrome.desktop;
+application/xhtml_xml=google-chrome.desktop;
+application/xml=google-chrome.desktop;
+image/gif=google-chrome.desktop;
+image/jpeg=google-chrome.desktop;
+image/png=google-chrome.desktop;
+image/webp=google-chrome.desktop;
+inode/directory=antigravity-ide.desktop;
+text/html=google-chrome.desktop;
+text/plain=antigravity-ide.desktop;
+text/xml=google-chrome.desktop;
+x-content/unix-software=Libation.desktop;
+x-scheme-handler/google-chrome=google-chrome.desktop;
+x-scheme-handler/http=google-chrome.desktop;
+x-scheme-handler/https=google-chrome.desktop;

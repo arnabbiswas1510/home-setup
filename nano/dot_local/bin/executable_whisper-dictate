@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# whisper-dictate - Instant voice-to-text dictation using whisper.cpp
+# Press hotkey once to start recording, press again to stop, transcribe & type into active window.
+
+PID_FILE="/tmp/whisper_dictate.pid"
+AUDIO_FILE="/tmp/whisper_dictate.wav"
+MODEL_PATH="${XDG_DATA_HOME:-$HOME/.local/share}/whisper-models/ggml-small.en.bin"
+WHISPER_BIN="${HOME}/.local/bin/whisper-cli"
+
+paste_text() {
+    local text="$1"
+    # Copy to both primary selection and clipboard
+    if command -v xclip >/dev/null 2>&1; then
+        echo -n "$text" | xclip -selection clipboard 2>/dev/null || true
+        echo -n "$text" | xclip -selection primary 2>/dev/null || true
+    fi
+    if command -v wl-copy >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+        echo -n "$text" | wl-copy 2>/dev/null || true
+    fi
+
+    # Give clipboard a moment to synchronize
+    sleep 0.05
+
+    # Trigger Paste (Ctrl+V) into active window
+    if [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wtype >/dev/null 2>&1; then
+        wtype -M ctrl -k v -m ctrl
+    else
+        # X11 paste simulation using python-xlib
+        python3 -c '
+from Xlib import X, display, XK
+from Xlib.ext.xtest import fake_input
+import time
+try:
+    d = display.Display()
+    ctrl = d.keysym_to_keycode(XK.XK_Control_L)
+    v = d.keysym_to_keycode(XK.XK_v)
+    fake_input(d, X.KeyPress, ctrl)
+    fake_input(d, X.KeyPress, v)
+    fake_input(d, X.KeyRelease, v)
+    fake_input(d, X.KeyRelease, ctrl)
+    d.sync()
+except Exception as e:
+    pass
+' 2>/dev/null || true
+    fi
+}
+
+if [ -f "$PID_FILE" ]; then
+    # --- STOP RECORDING & TRANSCRIBE ---
+    REC_PID=$(cat "$PID_FILE" 2>/dev/null)
+    rm -f "$PID_FILE"
+
+    if [ -n "$REC_PID" ] && kill -0 "$REC_PID" 2>/dev/null; then
+        kill -INT "$REC_PID" 2>/dev/null || kill -TERM "$REC_PID" 2>/dev/null
+        # Wait for pw-record to cleanly flush WAV header
+        for _ in {1..20}; do
+            kill -0 "$REC_PID" 2>/dev/null || break
+            sleep 0.05
+        done
+    fi
+
+    if [ ! -s "$AUDIO_FILE" ]; then
+        notify-send -t 1500 -a "Whisper Dictate" -i dialog-warning "Dictation Cancelled" "No audio was recorded."
+        exit 0
+    fi
+
+    # Notify transcribing
+    notify-send -t 1000 -a "Whisper Dictate" -i preferences-system-time "Transcribing..." "Processing speech..."
+
+    # Transcribe audio using whisper-cli
+    RAW_TEXT=$("$WHISPER_BIN" -m "$MODEL_PATH" -f "$AUDIO_FILE" -nt -np --no-prints -l en -t 8 2>/dev/null || true)
+
+    # Clean up whitespace and newlines
+    CLEAN_TEXT=$(echo "$RAW_TEXT" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | tr '\n' ' ' | sed -e 's/[[:space:]]\+/ /g' -e 's/[[:space:]]*$//')
+
+    rm -f "$AUDIO_FILE"
+
+    if [ -n "$CLEAN_TEXT" ] && [ "$CLEAN_TEXT" != "[BLANK_AUDIO]" ] && [ "$CLEAN_TEXT" != "you" ]; then
+        # Paste text into active input field
+        paste_text "$CLEAN_TEXT"
+        notify-send -t 2000 -a "Whisper Dictate" -i edit-paste "Transcribed" "$CLEAN_TEXT"
+    else
+        notify-send -t 1500 -a "Whisper Dictate" -i dialog-information "Dictation" "No speech detected."
+    fi
+
+else
+    # --- START RECORDING ---
+    rm -f "$AUDIO_FILE"
+
+    # Start 16kHz mono recording via PipeWire
+    pw-record --rate=16000 --channels=1 --format=s16 "$AUDIO_FILE" >/dev/null 2>&1 &
+    REC_PID=$!
+    echo "$REC_PID" > "$PID_FILE"
+
+    notify-send -t 1500 -a "Whisper Dictate" -i audio-input-microphone "🎙️ Dictating..." "Speak now... press shortcut again to finish."
+fi

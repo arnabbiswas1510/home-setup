@@ -40,12 +40,32 @@ CONFIG_MAP = {
     HOME / ".gemini" / "antigravity-ide" / "settings.json": NANO_DIR / "dot_gemini" / "antigravity-ide" / "settings.json",
     HOME / ".gemini" / "config" / "mcp_config.json": NANO_DIR / "dot_gemini" / "config" / "mcp_config.json",
     HOME / ".local" / "bin" / "daily-user-update.sh": NANO_DIR / "dot_local" / "bin" / "executable_daily-user-update.sh",
+    # Recording scripts & workflow
+    HOME / "auto-rename-recording.py": NANO_DIR / "executable_auto-rename-recording.py",
+    HOME / "batch-recorder.py": NANO_DIR / "executable_batch-recorder.py",
+    HOME / "toggle-silent-app.py": NANO_DIR / "executable_toggle-silent-app.py",
+    HOME / "route-to-silent.sh": NANO_DIR / "executable_route-to-silent.sh",
+    # GPU Screen Recorder Flatpak config
+    HOME / ".var" / "app" / "com.dec05eba.gpu_screen_recorder" / "config" / "gpu-screen-recorder" / "config": NANO_DIR / "dot_var" / "app" / "com.dec05eba.gpu_screen_recorder" / "config" / "gpu-screen-recorder" / "config",
+    # CLI executables
+    HOME / ".local" / "bin" / "ipu6-webcam-manager.py": NANO_DIR / "dot_local" / "bin" / "executable_ipu6-webcam-manager.py",
+    HOME / ".local" / "bin" / "whisper-dictate": NANO_DIR / "dot_local" / "bin" / "executable_whisper-dictate",
+    HOME / ".local" / "bin" / "cimfax": NANO_DIR / "dot_local" / "bin" / "executable_cimfax",
+    # Hardware, Power & Audio configs
+    HOME / ".config" / "powerdevilrc": NANO_DIR / "dot_config" / "powerdevilrc",
+    HOME / ".config" / "touchpadxlibinputrc": NANO_DIR / "dot_config" / "touchpadxlibinputrc",
+    HOME / ".config" / "kcminputrc": NANO_DIR / "dot_config" / "kcminputrc",
+    HOME / ".config" / "solaar" / "config.yaml": NANO_DIR / "dot_config" / "solaar" / "config.yaml",
+    HOME / ".config" / "pipewire" / "pipewire.conf.d" / "silent-recording.conf": NANO_DIR / "dot_config" / "pipewire" / "pipewire.conf.d" / "silent-recording.conf",
 }
 
 # Directories to mirror recursively
 DIR_MAP = {
     HOME / ".config" / "autostart": NANO_DIR / "dot_config" / "autostart",
     HOME / ".config" / "systemd" / "user": NANO_DIR / "dot_config" / "systemd" / "user",
+    HOME / ".config" / "wireplumber" / "wireplumber.conf.d": NANO_DIR / "dot_config" / "wireplumber" / "wireplumber.conf.d",
+    HOME / ".local" / "share" / "applications": NANO_DIR / "dot_local" / "share" / "applications",
+    HOME / "Desktop": NANO_DIR / "Desktop",
 }
 
 # System /etc files tracked in repo
@@ -111,7 +131,7 @@ def sync_dotfiles(changes):
                     target = dst_dir / item.name
                     if not target.exists() or item.read_bytes() != target.read_bytes():
                         shutil.copy2(item, target)
-                        changes.append(f"chore(nano/autostart): update {item.name}")
+                        changes.append(f"chore(nano/{dst_dir.name}): update {item.name}")
 
 def sync_etc_files(changes):
     if not ETC_DIR.is_dir():

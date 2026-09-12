@@ -52,7 +52,7 @@ sudo dnf install -y \
   google-chrome-stable sublime-text tailscale syncthing \
   lz4 lz4-devel \
   intel-media-driver libva-intel-driver libva-utils ffmpeg \
-  gstreamer1-plugins-good gstreamer1-plugins-bad-free gstreamer1-tools libcamera-tools || true
+  gstreamer1-plugins-good gstreamer1-plugins-bad-free gstreamer1-tools libcamera-tools kde-plasma-addons || true
 
 # 4. Intel ThinkPad X1 Nano Hardware & Dock Tweaks
 echo ""
@@ -151,6 +151,12 @@ done
 # Zoom flatpak device permission override
 flatpak override --user --device=all us.zoom.Zoom || true
 
+# Restore GPU Screen Recorder Flatpak configuration
+echo "  Restoring GPU Screen Recorder customizations..."
+mkdir -p "$REAL_HOME/.var/app/com.dec05eba.gpu_screen_recorder/config/gpu-screen-recorder"
+cp -f "$REAL_HOME/workspace/home-setup/nano/dot_var/app/com.dec05eba.gpu_screen_recorder/config/gpu-screen-recorder/config" \
+  "$REAL_HOME/.var/app/com.dec05eba.gpu_screen_recorder/config/gpu-screen-recorder/config" 2>/dev/null || true
+
 # 7. Install/Verify Chezmoi & Apply Dotfiles
 echo ""
 echo "[7/9] Applying dotfiles with Chezmoi..."
@@ -159,6 +165,26 @@ if ! command -v chezmoi >/dev/null 2>&1; then
     sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$REAL_HOME/.local/bin"
 fi
 chezmoi apply --source "$REAL_HOME/workspace/home-setup/nano" || true
+
+# Ensure permissions for custom scripts and desktop launchers
+echo "  Setting permissions for custom utilities & desktop launchers..."
+chmod +x "$REAL_HOME"/auto-rename-recording.py "$REAL_HOME"/batch-recorder.py "$REAL_HOME"/toggle-silent-app.py "$REAL_HOME"/route-to-silent.sh 2>/dev/null || true
+chmod +x "$REAL_HOME"/.local/bin/* 2>/dev/null || true
+mkdir -p "$REAL_HOME/Desktop"
+chmod +x "$REAL_HOME"/Desktop/*.desktop 2>/dev/null || true
+
+# Configure KDE Picture of the Day (Bing) wallpaper across all displays
+echo "  Configuring Picture of the Day (Bing) wallpaper on all displays..."
+if command -v qdbus6 >/dev/null 2>&1; then
+    qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
+        let d = desktops();
+        for (let i = 0; i < d.length; i++) {
+            d[i].wallpaperPlugin = "org.kde.potd";
+            d[i].currentConfigGroup = Array("Wallpaper", "org.kde.potd", "General");
+            d[i].writeConfig("Provider", "bing");
+        }
+    ' 2>/dev/null || true
+fi
 
 # 8. Setup & Enable User Services and Timers
 echo ""

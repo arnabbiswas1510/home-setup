@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=CimFAX Client
+Comment=CimFAX Fax Server Client
+Exec=/home/pom/.local/bin/cimfax
+Icon=/home/pom/.local/share/cimfax/Res/cimfax_login.png
+Terminal=false
+Type=Application
+Categories=Office;Utility;
+StartupNotify=true

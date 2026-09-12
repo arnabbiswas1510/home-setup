@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Snipping Tool
+Exec=spectacle -r
+Icon=spectacle
+Terminal=false
+Categories=Utility;
+X-KDE-Shortcuts=Ctrl+Shift+S

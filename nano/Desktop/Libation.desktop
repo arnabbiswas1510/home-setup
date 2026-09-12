@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Libation
+Comment=Liberate your Audiobooks
+Exec=/home/pom/.local/bin/libation %u
+Icon=/home/pom/.local/lib/libation/libation.png
+Terminal=false
+Type=Application
+MimeType=x-content/unix-software;
+Categories=Audio;AudioVideo;Utility;
+Keywords=audible;audio;audiobook;book;
+StartupWMClass=Libation

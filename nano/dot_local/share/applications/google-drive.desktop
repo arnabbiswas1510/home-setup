@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=Google Drive
+Comment=Access and sync your Google Drive files
+Exec=google-chrome --app=https://drive.google.com/
+Icon=/home/pom/.local/share/icons/google-drive.svg
+Terminal=false
+Type=Application
+Categories=Network;FileTransfer;Utility;Office;
+StartupWMClass=drive.google.com

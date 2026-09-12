@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Plex
+Comment=Plex client for desktop computers
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=Plex tv.plex.PlexDesktop
+Icon=/var/lib/flatpak/exports/share/icons/hicolor/256x256/apps/tv.plex.PlexDesktop.png
+Terminal=false
+Categories=AudioVideo;Player;X-Media;
+X-Flatpak=tv.plex.PlexDesktop
