@@ -180,6 +180,7 @@ def record_video_session(url, index, total):
         "-q", "high",
         "-f", "30",
         "-fm", "content",
+        "-s", "1920x1080",
         "-c", "mp4",
         "-a", "SilentRecording.monitor",
         "-o", str(target_path)
