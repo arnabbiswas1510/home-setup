@@ -268,7 +268,7 @@ sudo systemctl enable --now tailscale.service 2>/dev/null || true
 sudo systemctl enable --now thermald.service 2>/dev/null || true
 sudo systemctl enable --now firewalld.service 2>/dev/null || true
 
-# 9. Final Verification
+# 10. Final Verification
 echo ""
 echo "======================================================================"
 echo "  Bootstrap Complete!                                                 "
