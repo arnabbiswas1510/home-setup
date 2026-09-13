@@ -238,10 +238,21 @@ if [ -d "$BACKUP_DIR" ]; then
     fi
 
     # 6. Flatpak application data (Logseq, Foliate, ZapZap, etc.)
-    if [ -d "$BACKUP_DIR/.var/app" ]; then
+    if [ -f "$BACKUP_DIR/../var_app_settings.tar.zst" ]; then
+        echo "  Restoring Flatpak application data from archive..."
+        mkdir -p "$REAL_HOME/.var"
+        tar -xf "$BACKUP_DIR/../var_app_settings.tar.zst" -C "$REAL_HOME/.var/" || true
+    elif [ -d "$BACKUP_DIR/.var/app" ]; then
         echo "  Restoring Flatpak application data from NAS backup..."
         mkdir -p "$REAL_HOME/.var/app"
         rsync -ah --info=progress2 "$BACKUP_DIR/.var/app/" "$REAL_HOME/.var/app/" || true
+    fi
+
+    # 7. Home Assistant Configurations
+    if [ -d "$BACKUP_DIR/../workspace/ha-config" ] && [ ! -d "$REAL_HOME/workspace/ha-config" ]; then
+        echo "  Restoring Home Assistant configuration..."
+        mkdir -p "$REAL_HOME/workspace"
+        cp -a "$BACKUP_DIR/../workspace/ha-config" "$REAL_HOME/workspace/"
     fi
 fi
 
