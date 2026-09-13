@@ -50,7 +50,7 @@ sudo dnf install -y \
   cifs-utils snapper btrfs-progs wl-clipboard qimgv feh \
   flatpak dkms kernel-devel firewalld thermald podman distrobox \
   google-chrome-stable sublime-text tailscale syncthing \
-  lz4 lz4-devel \
+  lz4 lz4-devel dpkg bolt chezmoi \
   intel-media-driver libva-intel-driver libva-utils ffmpeg \
   gstreamer1-plugins-good gstreamer1-plugins-bad-free gstreamer1-tools libcamera-tools kde-plasma-addons || true
 

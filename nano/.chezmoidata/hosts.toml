@@ -71,7 +71,10 @@ dnf_packages = [
   "ffmpeg",
   "gstreamer1-plugins-good",
   "gstreamer1-plugins-bad-free",
-  "kde-plasma-addons"
+  "kde-plasma-addons",
+  "dpkg",
+  "bolt",
+  "chezmoi"
 ]
 
 flatpak_apps = [
