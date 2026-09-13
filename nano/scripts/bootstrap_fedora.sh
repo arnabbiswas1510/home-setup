@@ -171,9 +171,89 @@ if command -v qdbus6 >/dev/null 2>&1; then
     ' 2>/dev/null || true
 fi
 
-# 8. Setup & Enable User Services and Timers
+# 8. Restore Application Data & Standalone Apps (Libation, IPTVnator, Antigravity, Flatpaks)
 echo ""
-echo "[8/9] Enabling systemd user services and timers..."
+echo "[8/10] Restoring application data and standalone apps..."
+BACKUP_DIR="/mnt/media1/pom_nano_backup/home_pom"
+sudo mount /mnt/media1 2>/dev/null || true
+
+if [ -d "$BACKUP_DIR" ]; then
+    echo "  Found NAS pre-migration backup at $BACKUP_DIR"
+
+    # 1. SSH Keys
+    if [ -d "$BACKUP_DIR/.ssh" ] && [ ! -d "$REAL_HOME/.ssh" ]; then
+        echo "  Restoring SSH keys..."
+        cp -a "$BACKUP_DIR/.ssh" "$REAL_HOME/.ssh"
+        chmod 700 "$REAL_HOME/.ssh"
+        chmod 600 "$REAL_HOME/.ssh"/* 2>/dev/null || true
+        chmod 644 "$REAL_HOME/.ssh"/*.pub 2>/dev/null || true
+    fi
+
+    # 2. Rclone Google Drive Config
+    if [ -f "$BACKUP_DIR/.config/rclone/rclone.conf" ] && [ ! -f "$REAL_HOME/.config/rclone/rclone.conf" ]; then
+        echo "  Restoring Google Drive rclone configuration..."
+        mkdir -p "$REAL_HOME/.config/rclone"
+        cp -a "$BACKUP_DIR/.config/rclone/rclone.conf" "$REAL_HOME/.config/rclone/rclone.conf"
+        chmod 600 "$REAL_HOME/.config/rclone/rclone.conf"
+    fi
+
+    # 3. Antigravity IDE & Gemini Configs
+    if [ -d "$BACKUP_DIR/.local/share/antigravity-ide" ] && [ ! -d "$REAL_HOME/.local/share/antigravity-ide" ]; then
+        echo "  Restoring Antigravity IDE..."
+        mkdir -p "$REAL_HOME/.local/share"
+        cp -a "$BACKUP_DIR/.local/share/antigravity-ide" "$REAL_HOME/.local/share/"
+    fi
+    if [ -d "$BACKUP_DIR/.gemini" ] && [ ! -d "$REAL_HOME/.gemini" ]; then
+        echo "  Restoring Gemini CLI settings..."
+        cp -a "$BACKUP_DIR/.gemini" "$REAL_HOME/"
+    fi
+    if [ -d "$BACKUP_DIR/.config/Antigravity IDE" ] && [ ! -d "$REAL_HOME/.config/Antigravity IDE" ]; then
+        echo "  Restoring Antigravity IDE user settings..."
+        mkdir -p "$REAL_HOME/.config"
+        cp -a "$BACKUP_DIR/.config/Antigravity IDE" "$REAL_HOME/.config/"
+    fi
+
+    # 4. Libation (Binaries & Library Database)
+    if [ -d "$BACKUP_DIR/.local/lib/libation" ] && [ ! -d "$REAL_HOME/.local/lib/libation" ]; then
+        echo "  Restoring Libation binaries..."
+        mkdir -p "$REAL_HOME/.local/lib"
+        cp -a "$BACKUP_DIR/.local/lib/libation" "$REAL_HOME/.local/lib/"
+    fi
+    if [ -d "$BACKUP_DIR/.local/share/Libation" ] && [ ! -d "$REAL_HOME/.local/share/Libation" ]; then
+        echo "  Restoring Libation audiobook database..."
+        mkdir -p "$REAL_HOME/.local/share"
+        cp -a "$BACKUP_DIR/.local/share/Libation" "$REAL_HOME/.local/share/"
+    fi
+
+    # 5. IPTVnator (Binaries & Config)
+    if [ -d "$BACKUP_DIR/.local/lib/iptvnator" ] && [ ! -d "$REAL_HOME/.local/lib/iptvnator" ]; then
+        echo "  Restoring IPTVnator binaries..."
+        mkdir -p "$REAL_HOME/.local/lib"
+        cp -a "$BACKUP_DIR/.local/lib/iptvnator" "$REAL_HOME/.local/lib/"
+    fi
+    if [ -d "$BACKUP_DIR/.config/IPTVnator" ] && [ ! -d "$REAL_HOME/.config/IPTVnator" ]; then
+        echo "  Restoring IPTVnator settings & playlists..."
+        mkdir -p "$REAL_HOME/.config"
+        cp -a "$BACKUP_DIR/.config/IPTVnator" "$REAL_HOME/.config/"
+    fi
+
+    # 6. Flatpak application data (Logseq, Foliate, ZapZap, etc.)
+    if [ -d "$BACKUP_DIR/.var/app" ]; then
+        echo "  Restoring Flatpak application data from NAS backup..."
+        mkdir -p "$REAL_HOME/.var/app"
+        rsync -ah --info=progress2 "$BACKUP_DIR/.var/app/" "$REAL_HOME/.var/app/" || true
+    fi
+fi
+
+# Fallback: if Libation or IPTVnator are missing, run daily-user-update.sh to download/install them
+if [ ! -d "$REAL_HOME/.local/lib/libation" ] || [ ! -d "$REAL_HOME/.local/lib/iptvnator" ]; then
+    echo "  Setting up standalone apps via daily-user-update..."
+    bash "$REAL_HOME/.local/bin/daily-user-update.sh" 2>/dev/null || true
+fi
+
+# 9. Setup & Enable User Services and Timers
+echo ""
+echo "[9/10] Enabling systemd user services and timers..."
 mkdir -p "$REAL_HOME/.config/systemd/user"
 systemctl --user daemon-reload
 systemctl --user enable --now syncthing.service 2>/dev/null || true
