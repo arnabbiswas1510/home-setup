@@ -56,10 +56,10 @@ sudo dnf install -y \
 
 # 4. Intel ThinkPad X1 Nano Hardware & Dock Tweaks
 echo ""
-echo "[4/9] Applying ThinkPad X1 Nano hardware tweaks (PSR, nobeep, EVDI Wayland)..."
+echo "[4/9] Applying ThinkPad X1 Nano hardware tweaks (PSR, nobeep, Thunderbolt 4)..."
 # Disable Intel GPU Panel Self Refresh (PSR)
 sudo tee /etc/modprobe.d/i915-psr.conf > /dev/null << 'TWEAK_EOF'
-# Disable PSR on Intel Iris Xe graphics to prevent dock unplug freezes
+# Disable PSR on Intel Iris Xe graphics to prevent dock sleep/wake freezes
 options i915 enable_psr=0
 options xe enable_psr=0
 TWEAK_EOF
@@ -70,24 +70,9 @@ blacklist pcspkr
 blacklist snd_pcsp
 TWEAK_EOF
 
-# DisplayLink EVDI virtual display count & KWin Wayland DRM flags
-sudo tee /etc/modprobe.d/evdi.conf > /dev/null << 'TWEAK_EOF'
-softdep evdi pre: drm_display_helper drm_ttm_helper i915 xe
-options evdi initial_device_count=2
-TWEAK_EOF
+# Enable Thunderbolt daemon for ThinkPad Thunderbolt 4 Dock
+sudo systemctl enable --now bolt.service 2>/dev/null || true
 
-sudo mkdir -p /etc/environment.d
-sudo tee /etc/environment.d/evdi.conf > /dev/null << 'TWEAK_EOF'
-KWIN_DRM_USE_MODIFIER=0
-KWIN_DRM_DEVICES=/dev/dri/card0:/dev/dri/card1:/dev/dri/card2
-TWEAK_EOF
-
-# Dock unplug udev rule
-sudo tee /etc/udev/rules.d/99-displaylink-hotplug.rules > /dev/null << 'TWEAK_EOF'
-ACTION=="remove", SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="17e9", ENV{ID_MODEL_ID}=="6015", RUN+="/usr/bin/systemctl restart --no-block displaylink-driver"
-TWEAK_EOF
-
-sudo udevadm control --reload-rules && sudo udevadm trigger || true
 sudo dracut --force || true
 
 # 5. DietPi NAS Automounts (/etc/fstab)
