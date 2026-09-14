@@ -12,7 +12,7 @@ main.hevc_amd_bug_warning_shown false
 main.hide_window_when_recording false
 main.installed_gsr_global_hotkeys_version 0
 main.merge_audio_tracks true
-main.quality high
+main.quality medium
 main.record_app_audio_inverted false
 main.record_area_height 1080
 main.record_area_option portal
