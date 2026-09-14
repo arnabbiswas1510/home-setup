@@ -2,8 +2,8 @@
 0baaa840-e5e2-4025-bdf8-7d5f33a79dd9=7d7f21e9-ee06-4fc1-8571-b7c75a29263e
 
 [Desktops]
-Id_1=7d7f21e9-ee06-4fc1-8571-b7c75a29263e
-Id_2=20138b06-9c84-4a64-838b-665f683a7296
+Id_1=eaef95f6-998e-4bfc-8d67-de4b76b3978a
+Id_2=d49a34bc-88ca-49b9-99f3-285e95b3f5c0
 Number=2
 Rows=1
 
@@ -59,6 +59,7 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 
 [Windows]
 BorderWidth=2
+RollOverDesktops=true
 
 [Xwayland]
 Scale=1.45
