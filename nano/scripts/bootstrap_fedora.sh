@@ -171,8 +171,17 @@ chmod +x "$REAL_HOME"/Desktop/*.desktop 2>/dev/null || true
 
 # Configure KDE Picture of the Day (Bing) wallpaper across all displays
 echo "  Configuring Picture of the Day (Bing) wallpaper on all displays..."
-if command -v qdbus6 >/dev/null 2>&1; then
-    qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
+QDBUS_BIN=""
+if command -v qdbus-qt6 >/dev/null 2>&1; then
+    QDBUS_BIN="qdbus-qt6"
+elif command -v qdbus6 >/dev/null 2>&1; then
+    QDBUS_BIN="qdbus6"
+elif command -v qdbus >/dev/null 2>&1; then
+    QDBUS_BIN="qdbus"
+fi
+
+if [ -n "$QDBUS_BIN" ]; then
+    "$QDBUS_BIN" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
         let d = desktops();
         for (let i = 0; i < d.length; i++) {
             d[i].wallpaperPlugin = "org.kde.potd";
