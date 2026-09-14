@@ -1,5 +1,6 @@
 {
     "python.languageServer": "Default",
     "antigravityLink.autoStart": true,
-    "antigravityLink.useHttps": true
+    "antigravityLink.useHttps": true,
+    "antigravityLink.preferredHost": "192.168.1.17"
 }
