@@ -10,9 +10,6 @@ Rows=1
 [Plugins]
 diminactiveEnabled=true
 
-[Tiling]
-padding=4
-
 [Tiling][094c4458-3fd6-5260-9d6b-502c6fefda87]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
@@ -50,6 +47,14 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][e51a6455-a15d-5206-91f7-0d5d45d32be7]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][eaef95f6-998e-4bfc-8d67-de4b76b3978a][3cb3c6aa-78d7-47af-abc2-9cb963a3d89a]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][eaef95f6-998e-4bfc-8d67-de4b76b3978a][74639997-3b15-4077-af97-c9a2531a75f8]
+padding=4
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Windows]

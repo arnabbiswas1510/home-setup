@@ -66,12 +66,120 @@ dnf_packages = [
   "tmux",
   "lz4",
   "lz4-devel",
-  "intel-media-driver",
-  "libva-intel-driver",
+  "libva-intel-media-driver",
+  "libva-utils",
   "ffmpeg",
   "gstreamer1-plugins-good",
   "gstreamer1-plugins-bad-free",
-  "kde-plasma-addons",
+  "gstreamer1-plugins-base-tools",
+  "kdeplasma-addons",
+  "dpkg",
+  "bolt",
+  "chezmoi"
+]
+
+flatpak_apps = [
+  "com.dec05eba.gpu_screen_recorder",
+  "com.github.dynobo.normcap",
+  "com.github.johnfactotum.Foliate",
+  "com.logseq.Logseq",
+  "com.rcloneui.RcloneUI",
+  "com.rtosta.zapzap",
+  "info.smplayer.SMPlayer",
+  "io.github.pwr_solaar.solaar",
+  "io.mpv.Mpv",
+  "org.avidemux.Avidemux",
+  "org.jellyfin.JellyfinDesktop",
+  "org.kde.falkon",
+  "org.videolan.VLC",
+  "org.winehq.Wine",
+  "tv.plex.PlexDesktop",
+  "us.zoom.Zoom"
+]
+
+system_services = [
+  "tailscale",
+  "syncthing",
+  "zramswap"
+]
+
+user_services = [
+  "syncthing"
+]
+
+[hosts.fedora]
+name = "Nano"
+description = "Fedora Workstation"
+apt_prereqs = ["curl", "gpg", "ca-certificates", "apt-transport-https"]
+
+repos = [
+  { name = "google-chrome", key_url = "https://dl.google.com/linux/linux_signing_key.pub", keyring = "/etc/apt/keyrings/google-chrome.gpg", repo = "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" },
+  { name = "sublime-text", key_url = "https://download.sublimetext.com/sublimehq-pub.gpg", keyring = "/etc/apt/keyrings/sublime-text.gpg", repo = "deb [signed-by=/etc/apt/keyrings/sublime-text.gpg] https://download.sublimetext.com/ apt/stable/" },
+  { name = "syncthing", key_url = "https://syncthing.net/release-key.gpg", keyring = "/etc/apt/keyrings/syncthing-archive-keyring.gpg", repo = "deb [signed-by=/etc/apt/keyrings/syncthing-archive-keyring.gpg] https://apt.syncthing.net/ syncthing stable" }
+]
+
+apt_packages = [
+  "build-essential",
+  "curl",
+  "wget",
+  "git",
+  "zsh",
+  "lsof",
+  "rclone",
+  "snapper",
+  "btrfs-progs",
+  "wl-clipboard",
+  "qimgv",
+  "feh",
+  "flatpak",
+  "dkms",
+  "ca-certificates",
+  "gpg",
+  "apt-transport-https",
+  "plasma-wallpapers-addons",
+  "google-chrome-stable",
+  "sublime-text",
+  "tailscale",
+  "syncthing",
+  "zram-tools"
+]
+
+dnf_packages = [
+  "@development-tools",
+  "curl",
+  "wget",
+  "git",
+  "zsh",
+  "lsof",
+  "rclone",
+  "snapper",
+  "btrfs-progs",
+  "wl-clipboard",
+  "qimgv",
+  "feh",
+  "flatpak",
+  "dkms",
+  "kernel-devel",
+  "ca-certificates",
+  "gnupg2",
+  "google-chrome-stable",
+  "sublime-text",
+  "tailscale",
+  "syncthing",
+  "cifs-utils",
+  "btop",
+  "nvtop",
+  "htop",
+  "tmux",
+  "lz4",
+  "lz4-devel",
+  "libva-intel-media-driver",
+  "libva-utils",
+  "ffmpeg",
+  "gstreamer1-plugins-good",
+  "gstreamer1-plugins-bad-free",
+  "gstreamer1-plugins-base-tools",
+  "kdeplasma-addons",
   "dpkg",
   "bolt",
   "chezmoi"

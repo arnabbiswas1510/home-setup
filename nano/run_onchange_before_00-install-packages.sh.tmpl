@@ -30,16 +30,25 @@ if [ -n "$SUDO" ] || [ "$(id -u)" -eq 0 ]; then
 
         # 2. Setup Vendor Repositories
         echo "--> Configuring vendor RPM repositories..."
-        $SUDO dnf config-manager --set-enabled google-chrome 2>/dev/null || \
-        $SUDO dnf config-manager --add-repo https://dl.google.com/linux/chrome/rpm/stable/x86_64 2>/dev/null || true
-        $SUDO rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg 2>/dev/null || true
-        $SUDO dnf config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo 2>/dev/null || true
-        $SUDO dnf config-manager --add-repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo 2>/dev/null || true
+        if dnf --version 2>/dev/null | grep -q "dnf5"; then
+            $SUDO dnf config-manager enable google-chrome 2>/dev/null || true
+            $SUDO rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg 2>/dev/null || true
+            $SUDO dnf config-manager addrepo --from-repofile=https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo --overwrite 2>/dev/null || true
+            $SUDO rpm -v --import https://pkgs.tailscale.com/stable/fedora/repo.gpg 2>/dev/null || true
+            $SUDO dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo --overwrite 2>/dev/null || true
+        else
+            $SUDO dnf config-manager --set-enabled google-chrome 2>/dev/null || \
+            $SUDO dnf config-manager --add-repo https://dl.google.com/linux/chrome/rpm/stable/x86_64 2>/dev/null || true
+            $SUDO rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg 2>/dev/null || true
+            $SUDO dnf config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo 2>/dev/null || true
+            $SUDO rpm -v --import https://pkgs.tailscale.com/stable/fedora/repo.gpg 2>/dev/null || true
+            $SUDO dnf config-manager --add-repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo 2>/dev/null || true
+        fi
 
         # 3. Install Curated DNF Packages
         echo "--> Installing curated DNF packages..."
         {{ if index $hostData "dnf_packages" }}
-        $SUDO dnf install -y {{ range $hostData.dnf_packages }}{{ . }} {{ end }} || true
+        $SUDO dnf install -y --allowerasing --skip-unavailable {{ range $hostData.dnf_packages }}{{ . }} {{ end }} || true
         {{ end }}
     elif command -v apt-get >/dev/null 2>&1; then
         # 1. Ensure keyrings directory exists

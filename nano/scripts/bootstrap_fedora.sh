@@ -20,6 +20,12 @@ fi
 REAL_USER="$USER"
 REAL_HOME="$HOME"
 
+# Ensure system hostname matches repository definitions
+if [ "$(hostname)" = "fedora" ]; then
+    echo "  Setting system hostname to nano..."
+    sudo hostnamectl set-hostname nano 2>/dev/null || true
+fi
+
 # 1. Enable RPM Fusion (Free and Nonfree)
 echo ""
 echo "[1/9] Enabling RPM Fusion repositories..."
@@ -31,28 +37,33 @@ sudo dnf install -y \
 echo ""
 echo "[2/9] Configuring vendor RPM repositories..."
 # Google Chrome
-sudo dnf config-manager --set-enabled google-chrome 2>/dev/null || \
-sudo dnf config-manager --add-repo https://dl.google.com/linux/chrome/rpm/stable/x86_64 2>/dev/null || true
-
-# Sublime Text
-sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg 2>/dev/null || true
-sudo dnf config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo 2>/dev/null || true
-
-# Tailscale
-sudo dnf config-manager --add-repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo 2>/dev/null || true
+if dnf --version 2>/dev/null | grep -q "dnf5"; then
+    sudo dnf config-manager enable google-chrome 2>/dev/null || true
+    sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg 2>/dev/null || true
+    sudo dnf config-manager addrepo --from-repofile=https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo --overwrite 2>/dev/null || true
+    sudo rpm -v --import https://pkgs.tailscale.com/stable/fedora/repo.gpg 2>/dev/null || true
+    sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo --overwrite 2>/dev/null || true
+else
+    sudo dnf config-manager --set-enabled google-chrome 2>/dev/null || \
+    sudo dnf config-manager --add-repo https://dl.google.com/linux/chrome/rpm/stable/x86_64 2>/dev/null || true
+    sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg 2>/dev/null || true
+    sudo dnf config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo 2>/dev/null || true
+    sudo rpm -v --import https://pkgs.tailscale.com/stable/fedora/repo.gpg 2>/dev/null || true
+    sudo dnf config-manager --add-repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo 2>/dev/null || true
+fi
 
 # 3. Install Curated Fedora DNF Packages
 echo ""
 echo "[3/9] Installing system & command line packages..."
-sudo dnf install -y \
+sudo dnf install -y --allowerasing --skip-unavailable \
   @development-tools \
   git zsh curl wget lsof rclone btop nvtop htop tmux \
   cifs-utils snapper btrfs-progs wl-clipboard qimgv feh \
   flatpak dkms kernel-devel firewalld thermald podman distrobox \
   google-chrome-stable sublime-text tailscale syncthing \
   lz4 lz4-devel dpkg bolt chezmoi \
-  intel-media-driver libva-intel-driver libva-utils ffmpeg \
-  gstreamer1-plugins-good gstreamer1-plugins-bad-free gstreamer1-tools libcamera-tools kde-plasma-addons || true
+  libva-intel-media-driver libva-utils ffmpeg \
+  gstreamer1-plugins-good gstreamer1-plugins-bad-free gstreamer1-plugins-base-tools libcamera-tools kdeplasma-addons || true
 
 # 4. Intel ThinkPad X1 Nano Hardware & Dock Tweaks
 echo ""
@@ -83,7 +94,7 @@ sudo mkdir -p /mnt/dietpi /mnt/dietpi-home /mnt/books /mnt/media1 /mnt/media2 /m
 
 if [ ! -f /etc/samba/credentials-192.168.1.50 ]; then
     sudo tee /etc/samba/credentials-192.168.1.50 > /dev/null << 'SMB_EOF'
-username=dietpi
+username=pom
 password=paro
 domain=WORKGROUP
 SMB_EOF
@@ -107,7 +118,7 @@ sudo systemctl daemon-reload
 # 6. Install Flatpak Applications
 echo ""
 echo "[6/9] Setting up Flathub and restoring Flatpak applications..."
-flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
 
 FLATPAKS=(
   "com.dec05eba.gpu_screen_recorder"
@@ -123,7 +134,7 @@ FLATPAKS=(
   "org.jellyfin.JellyfinDesktop"
   "org.kde.falkon"
   "org.videolan.VLC"
-  "org.winehq.Wine"
+  "org.winehq.Wine//stable"
   "tv.plex.PlexDesktop"
   "us.zoom.Zoom"
 )
