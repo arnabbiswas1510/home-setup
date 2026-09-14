@@ -217,12 +217,37 @@ if [ -d "$BACKUP_DIR" ]; then
         chmod 600 "$REAL_HOME/.config/rclone/rclone.conf"
     fi
 
-    # 3. Antigravity IDE & Gemini Configs
-    if [ -d "$BACKUP_DIR/.local/share/antigravity-ide" ] && [ ! -d "$REAL_HOME/.local/share/antigravity-ide" ]; then
+    # 3. Antigravity IDE, App & Gemini Configs
+    SRC_IDE=""
+    if [ -d "$BACKUP_DIR/.local/share/antigravity-ide" ]; then
+        SRC_IDE="$BACKUP_DIR/.local/share/antigravity-ide"
+    elif [ -d "$BACKUP_DIR/../.trash_old_backup/.local/share/antigravity-ide" ]; then
+        SRC_IDE="$BACKUP_DIR/../.trash_old_backup/.local/share/antigravity-ide"
+    fi
+    if [ -n "$SRC_IDE" ] && [ ! -d "$REAL_HOME/.local/share/antigravity-ide" ]; then
         echo "  Restoring Antigravity IDE..."
         mkdir -p "$REAL_HOME/.local/share"
-        cp -a "$BACKUP_DIR/.local/share/antigravity-ide" "$REAL_HOME/.local/share/"
+        cp -a "$SRC_IDE" "$REAL_HOME/.local/share/"
     fi
+
+    SRC_APP=""
+    if [ -d "$BACKUP_DIR/.local/share/antigravity-app" ]; then
+        SRC_APP="$BACKUP_DIR/.local/share/antigravity-app"
+    elif [ -d "$BACKUP_DIR/../.trash_old_backup/.local/share/antigravity-app" ]; then
+        SRC_APP="$BACKUP_DIR/../.trash_old_backup/.local/share/antigravity-app"
+    fi
+    if [ -n "$SRC_APP" ] && [ ! -d "$REAL_HOME/.local/share/antigravity-app" ]; then
+        echo "  Restoring Antigravity App..."
+        mkdir -p "$REAL_HOME/.local/share"
+        cp -a "$SRC_APP" "$REAL_HOME/.local/share/"
+    fi
+
+    mkdir -p "$REAL_HOME/.local/bin"
+    [ -f "$REAL_HOME/.local/share/antigravity-ide/bin/antigravity-ide" ] && ln -sf "$REAL_HOME/.local/share/antigravity-ide/bin/antigravity-ide" "$REAL_HOME/.local/bin/antigravity-ide"
+    [ -f "$REAL_HOME/.local/share/antigravity-app/antigravity" ] && ln -sf "$REAL_HOME/.local/share/antigravity-app/antigravity" "$REAL_HOME/.local/bin/antigravity"
+    chmod +x "$REAL_HOME"/.config/autostart/*.desktop 2>/dev/null || true
+    chmod +x "$REAL_HOME"/.local/share/applications/antigravity*.desktop 2>/dev/null || true
+
     if [ -d "$BACKUP_DIR/.gemini" ] && [ ! -d "$REAL_HOME/.gemini" ]; then
         echo "  Restoring Gemini CLI settings..."
         cp -a "$BACKUP_DIR/.gemini" "$REAL_HOME/"
