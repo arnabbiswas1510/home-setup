@@ -2,8 +2,9 @@
 PreviewSize=64
 
 [General]
+GlobalViewProps=true
 Version=202
-ViewPropsTimestamp=2026,8,5,9,53,46.499
+ViewPropsTimestamp=2026,9,13,22,31,16.0
 
 [IconsMode]
 PreviewSize=128
