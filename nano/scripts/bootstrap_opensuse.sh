@@ -156,6 +156,47 @@ mkdir -p "$REAL_HOME/.var/app/com.dec05eba.gpu_screen_recorder/config/gpu-screen
 cp -f "$REAL_HOME/workspace/home-setup/nano/dot_var/app/com.dec05eba.gpu_screen_recorder/config/gpu-screen-recorder/config" \
   "$REAL_HOME/.var/app/com.dec05eba.gpu_screen_recorder/config/gpu-screen-recorder/config" 2>/dev/null || true
 
+# Configure Flatpak environment for systemd user session & desktop discovery (KRunner, Kickoff, Sycoca)
+echo "  Configuring Flatpak desktop & environment discovery..."
+mkdir -p "$REAL_HOME/.config/environment.d"
+cat << 'FLATPAK_ENV' > "$REAL_HOME/.config/environment.d/60-flatpak.conf"
+XDG_DATA_DIRS="${HOME}/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+PATH="${HOME}/.local/share/flatpak/exports/bin:/var/lib/flatpak/exports/bin:${PATH:-/usr/local/bin:/usr/bin:/bin}"
+FLATPAK_ENV
+
+# CLI wrappers for Flatpak apps
+mkdir -p "$REAL_HOME/.local/bin"
+cat << 'EOF' > "$REAL_HOME/.local/bin/logseq"
+#!/usr/bin/env sh
+exec /usr/bin/flatpak run com.logseq.Logseq "$@"
+EOF
+chmod +x "$REAL_HOME/.local/bin/logseq"
+
+cat << 'EOF' > "$REAL_HOME/.local/bin/gpu-screen-recorder"
+#!/usr/bin/env sh
+exec /usr/bin/flatpak run --command=gpu-screen-recorder com.dec05eba.gpu_screen_recorder "$@"
+EOF
+chmod +x "$REAL_HOME/.local/bin/gpu-screen-recorder"
+
+cat << 'EOF' > "$REAL_HOME/.local/bin/gpu-screen-recorder-gtk"
+#!/usr/bin/env sh
+exec /usr/bin/flatpak run --command=gpu-screen-recorder-gtk com.dec05eba.gpu_screen_recorder "$@"
+EOF
+chmod +x "$REAL_HOME/.local/bin/gpu-screen-recorder-gtk
+
+ln -sf /usr/bin/mupdf-gl "$REAL_HOME/.local/bin/mupdf-gl" 2>/dev/null || true
+
+# Update current session environment & rebuild KDE Sycoca cache
+if command -v dbus-update-activation-environment >/dev/null 2>&1; then
+    NEW_XDG_DATA_DIRS="$REAL_HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+    NEW_PATH="$REAL_HOME/.local/share/flatpak/exports/bin:/var/lib/flatpak/exports/bin:$REAL_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
+    dbus-update-activation-environment --systemd XDG_DATA_DIRS="${NEW_XDG_DATA_DIRS}" PATH="${NEW_PATH}" 2>/dev/null || true
+    systemctl --user import-environment XDG_DATA_DIRS PATH 2>/dev/null || true
+fi
+if command -v kbuildsycoca6 >/dev/null 2>&1; then
+    kbuildsycoca6 --noincremental 2>/dev/null || true
+fi
+
 # 7. Install/Verify Chezmoi & Apply Dotfiles
 echo ""
 echo "[7/9] Applying dotfiles with Chezmoi..."
