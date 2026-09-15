@@ -28,3 +28,5 @@ fi
 
 # Added by Antigravity CLI installer
 export PATH="/home/pom/.local/bin:$PATH"
+
+. "$HOME/.local/share/../bin/env"

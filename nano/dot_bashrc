@@ -116,3 +116,5 @@ fi
 export PATH="/home/pom/.local/bin:$PATH"
 
 export PATH="/home/pom/workspace/vidsniff/vidsniff/.venv/bin:$PATH"  # vidsniff
+
+. "$HOME/.local/share/../bin/env"
