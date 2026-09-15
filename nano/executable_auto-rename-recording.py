@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
 Auto-renames GPU Screen Recorder videos based on the active/latest video tab in Firefox.
+Also automatically routes browser audio (Firefox, Chrome, etc.) to the SilentRecording
+null sink while recording is active, ensuring physical speakers remain completely silent
+while the recording cleanly captures the audio.
 """
 
 import os
@@ -32,13 +35,34 @@ def slug_to_title(slug):
         i += 1
     return ' '.join(res)
 
+def get_firefox_session_files():
+    search_patterns = [
+        str(Path.home() / ".config/mozilla/firefox/*.default*/sessionstore-backups/recovery.jsonlz4"),
+        str(Path.home() / ".mozilla/firefox/*.default*/sessionstore-backups/recovery.jsonlz4"),
+        str(Path.home() / ".var/app/org.mozilla.firefox/.config/mozilla/firefox/*.default*/sessionstore-backups/recovery.jsonlz4"),
+        str(Path.home() / ".var/app/org.mozilla.firefox/.mozilla/firefox/*.default*/sessionstore-backups/recovery.jsonlz4"),
+    ]
+    paths = []
+    for pat in search_patterns:
+        paths.extend(glob.glob(pat))
+    if not paths:
+        for pat in [
+            str(Path.home() / ".config/mozilla/firefox/*.default*/sessionstore-backups/previous.jsonlz4"),
+            str(Path.home() / ".mozilla/firefox/*.default*/sessionstore-backups/previous.jsonlz4"),
+        ]:
+            paths.extend(glob.glob(pat))
+    # Return unique paths sorted by newest modification time
+    unique_paths = list(dict.fromkeys(paths))
+    unique_paths.sort(key=os.path.getmtime, reverse=True)
+    return unique_paths
+
 def get_firefox_active_title():
     try:
         lz4 = ctypes.CDLL('liblz4.so.1')
         lz4.LZ4_decompress_safe.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
         lz4.LZ4_decompress_safe.restype = ctypes.c_int
 
-        paths = glob.glob(str(Path.home() / ".mozilla/firefox/*.default*/sessionstore-backups/recovery.jsonlz4"))
+        paths = get_firefox_session_files()
         if not paths:
             return None
 
@@ -96,6 +120,64 @@ def get_firefox_active_title():
         print(f"Error extracting Firefox title: {e}", file=sys.stderr)
     return None
 
+def is_recording_in_progress():
+    try:
+        res = subprocess.run(["pgrep", "-f", "gpu-screen-recorder -w"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return res.returncode == 0
+    except Exception:
+        return False
+
+def ensure_silent_sink():
+    try:
+        sinks = subprocess.check_output(["pactl", "list", "short", "sinks"], text=True)
+        if "SilentRecording" not in sinks:
+            subprocess.run([
+                "pactl", "load-module", "module-null-sink",
+                "sink_name=SilentRecording",
+                "sink_properties=device.description=Silent_Recording"
+            ], capture_output=True)
+    except Exception:
+        pass
+
+def auto_route_audio_to_silent():
+    """
+    Routes active browser/media audio streams to SilentRecording sink
+    so no sound comes out of the physical speakers, but the audio is captured by GPU Screen Recorder.
+    """
+    try:
+        ensure_silent_sink()
+        sinks = subprocess.check_output(["pactl", "list", "short", "sinks"], text=True)
+        silent_sink_num = None
+        for line in sinks.splitlines():
+            parts = line.split()
+            if len(parts) >= 2 and "SilentRecording" in parts[1]:
+                silent_sink_num = parts[0]
+                break
+        if not silent_sink_num:
+            return
+
+        out = subprocess.check_output(["pactl", "list", "sink-inputs"], text=True)
+        blocks = out.split("Sink Input #")
+        browser_keywords = ["firefox", "chrome", "chromium", "brave", "edge", "opera", "vivaldi", "mpv", "vlc"]
+
+        for b in blocks[1:]:
+            lines = b.splitlines()
+            id_val = lines[0].strip()
+            app_name = ""
+            sink_id = ""
+            for l in lines:
+                if "application.name =" in l:
+                    app_name = l.split("=")[1].strip().strip('"').lower()
+                elif "Sink:" in l:
+                    sink_id = l.split(":")[1].strip()
+
+            if any(k in app_name for k in browser_keywords):
+                if sink_id != silent_sink_num:
+                    subprocess.run(["pactl", "move-sink-input", id_val, "SilentRecording"], capture_output=True)
+                    print(f"Auto-routed {app_name} (stream #{id_val}) to SilentRecording (silent on speakers, recording sound)")
+    except Exception as e:
+        pass
+
 def is_file_open(file_path):
     try:
         res = subprocess.run(["fuser", str(file_path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -108,7 +190,7 @@ def is_file_size_stable(file_path, wait_sec=2):
         s1 = os.path.getsize(file_path)
         time.sleep(wait_sec)
         s2 = os.path.getsize(file_path)
-        return s1 == s2 and s1 > 1024 * 100  # at least 100 KB
+        return s1 == s2 and s1 > 1024 * 50  # at least 50 KB
     except Exception:
         return False
 
@@ -126,12 +208,12 @@ def rename_recording(video_path, custom_title=None):
     if not video_path or not os.path.exists(video_path):
         return None
     
-    # Ensure file is completely closed
-    while is_file_open(video_path):
-        time.sleep(2)
+    # Ensure file is completely closed by recorder
+    if is_file_open(video_path):
+        return None
 
     # Ensure size is stable
-    if not is_file_size_stable(video_path, wait_sec=2):
+    if not is_file_size_stable(video_path, wait_sec=1):
         return None
 
     title = custom_title or get_firefox_active_title()
@@ -162,11 +244,17 @@ def rename_recording(video_path, custom_title=None):
         return None
 
 def watch_directory():
-    print(f"Watching {VIDEOS_DIR} for completed recordings...")
+    print(f"Watching {VIDEOS_DIR} for completed recordings and auto-routing audio to SilentRecording...")
     processed_files = set()
-    
+    failed_attempts = {}
+
     while True:
         try:
+            # Check if GPU Screen Recorder is actively recording
+            if is_recording_in_progress():
+                # Route any active browser audio into SilentRecording
+                auto_route_audio_to_silent()
+
             candidates = get_candidate_recordings()
             for cand in candidates:
                 cand_str = str(cand.resolve())
@@ -175,22 +263,32 @@ def watch_directory():
                 
                 # Check if recording is still writing
                 if is_file_open(cand):
-                    # Still recording, check back on next cycle
+                    # Still actively recording, check back on next cycle
                     continue
                 
                 # File is closed, verify size
-                if os.path.getsize(cand) < 1024 * 50:  # Skip empty or aborted files
+                file_size = os.path.getsize(cand)
+                if file_size < 1024 * 50:  # Skip tiny / empty files
+                    processed_files.add(cand_str)
                     continue
                 
+                attempts = failed_attempts.get(cand_str, 0)
+                if attempts >= 5:
+                    # After 5 failed title detection attempts, mark processed to prevent infinite looping
+                    processed_files.add(cand_str)
+                    continue
+
                 print(f"Recording finished: {cand.name}. Renaming...")
                 res = rename_recording(cand)
                 if res:
                     processed_files.add(cand_str)
                     processed_files.add(str(Path(res).resolve()))
+                else:
+                    failed_attempts[cand_str] = attempts + 1
         except Exception as e:
             print(f"Watcher loop error: {e}", file=sys.stderr)
         
-        time.sleep(2)
+        time.sleep(1)
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "--watch":
