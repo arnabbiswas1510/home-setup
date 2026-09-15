@@ -19,5 +19,8 @@ MenuBar=Disabled
 [PreviewSettings]
 Plugins=ffmpegthumbnailer,appimagethumbnail,evince,audiothumbnail,blenderthumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,gsf-office,mobithumbnail,opendocumentthumbnail,atril,gsthumbnail,rawthumbnail,totem,svgthumbnail,ffmpegthumbs,webarchivethumbnail,gdk-pixbuf-thumbnailer,gnome-font-viewer
 
+[UiSettings]
+ColorScheme=DarkopenSUSEColor
+
 [ViewPropertiesDialog]
 ShowPreviews=true
