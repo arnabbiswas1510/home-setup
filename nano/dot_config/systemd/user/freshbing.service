@@ -1,0 +1,14 @@
+[Unit]
+Description=FreshBing Daily Wallpaper Update Service
+Documentation=https://github.com/ndabas/FreshBing
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/pom/.local/bin/freshbing
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

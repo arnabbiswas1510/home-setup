@@ -1,0 +1,11 @@
+[Unit]
+Description=FreshBing Daily Wallpaper Update Timer
+Documentation=https://github.com/ndabas/FreshBing
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+Persistent=true
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=FreshBing
+Comment=Update desktop wallpaper with Bing Daily Image
+Exec=/home/pom/.local/bin/freshbing
+Icon=preferences-desktop-wallpaper
+Terminal=false
+Type=Application
+Categories=Utility;Graphics;

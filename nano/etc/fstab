@@ -1,19 +1,13 @@
-
-#
-# /etc/fstab
-# Created by anaconda on Sun Sep 13 22:34:54 2026
-#
-# Accessible filesystems, by reference, are maintained under '/dev/disk/'.
-# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info.
-#
-# After editing this file, run 'systemctl daemon-reload' to update systemd
-# units generated from this file.
-#
-UUID=2b72a958-292f-4606-9f57-ee28c87e550c / btrfs subvol=root,compress=zstd:1,x-systemd.device-timeout=0 0 0
-UUID=5eafb060-2c94-4fa4-a195-91fd4cd6b4da /boot ext4 defaults 1 2
-UUID=491A-9DD0 /boot/efi vfat umask=0077,shortname=winnt 0 2
-UUID=2b72a958-292f-4606-9f57-ee28c87e550c /home btrfs subvol=home,compress=zstd:1,x-systemd.device-timeout=0 0 0
-
+UUID=dfe35383-0e8f-4380-91f5-4f1901c51488  /            btrfs  defaults              0  0
+UUID=dfe35383-0e8f-4380-91f5-4f1901c51488  /var         btrfs  subvol=/@/var         0  0
+UUID=dfe35383-0e8f-4380-91f5-4f1901c51488  /usr/local   btrfs  subvol=/@/usr/local   0  0
+UUID=dfe35383-0e8f-4380-91f5-4f1901c51488  /srv         btrfs  subvol=/@/srv         0  0
+UUID=dfe35383-0e8f-4380-91f5-4f1901c51488  /root        btrfs  subvol=/@/root        0  0
+UUID=dfe35383-0e8f-4380-91f5-4f1901c51488  /opt         btrfs  subvol=/@/opt         0  0
+UUID=dfe35383-0e8f-4380-91f5-4f1901c51488  /home        btrfs  subvol=/@/home        0  0
+UUID=491A-9DD0                             /boot/efi    vfat   utf8,dmask=0077       0  2
+UUID=f1596637-d218-42a1-b064-9ba1bb16cd44  swap         swap   defaults              0  0
+UUID=dfe35383-0e8f-4380-91f5-4f1901c51488  /.snapshots  btrfs  subvol=/@/.snapshots  0  0
 
 # NAS 192.168.1.50 Samba Shares
 //192.168.1.50/pom         /mnt/pom         cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
