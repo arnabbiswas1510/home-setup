@@ -70,7 +70,9 @@ def get_firefox_active_title():
         lz4.LZ4_decompress_safe.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
         lz4.LZ4_decompress_safe.restype = ctypes.c_int
 
-        paths = glob.glob(str(Path.home() / ".mozilla/firefox/*.default*/sessionstore-backups/recovery.jsonlz4"))
+        paths = glob.glob(str(Path.home() / ".config/mozilla/firefox/*.default*/sessionstore-backups/recovery.jsonlz4"))
+        if not paths:
+            paths = glob.glob(str(Path.home() / ".mozilla/firefox/*.default*/sessionstore-backups/recovery.jsonlz4"))
         if not paths:
             return None
 
