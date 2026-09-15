@@ -15,7 +15,8 @@
                 "GARMIN_EMAIL": "arnabbiswas@yahoo.com",
                 "GARMIN_PASSWORD": "Rehaan1507!",
                 "GARTH_HOME": "/home/pom/.garminconnect/arnabbiswas_yahoo_com",
-                "GARMINCONNECT_TOKENS": "/home/pom/.garminconnect/arnabbiswas_yahoo_com"
+                "GARMINCONNECT_TOKENS": "/home/pom/.garminconnect/arnabbiswas_yahoo_com",
+                "GARMIN_TOKEN_DIR": "/home/pom/.cache/garmin-mcp/garth"
             }
         }
     }
