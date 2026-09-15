@@ -3,7 +3,7 @@ main.audio_codec opus
 main.audio_input device:Default output
 main.av1_amd_bug_warning_shown false
 main.change_video_resolution true
-main.codec h264_software
+main.codec hevc
 main.color_range limited
 main.exclude_metadata false
 main.fps 30
