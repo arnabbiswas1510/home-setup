@@ -2,5 +2,7 @@
     "python.languageServer": "Default",
     "antigravityLink.autoStart": true,
     "antigravityLink.useHttps": true,
-    "antigravityLink.preferredHost": "192.168.1.17"
+    "antigravityLink.port": 3000,
+    "antigravityLink.preferredHost": "192.168.1.17",
+    "antigravityLink.preferredNetworkInterface": "wlp0s20f3"
 }
