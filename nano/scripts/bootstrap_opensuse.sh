@@ -298,8 +298,15 @@ if [ -d "$BACKUP_DIR" ]; then
     mkdir -p "$REAL_HOME/.local/bin"
     [ -f "$REAL_HOME/.local/share/antigravity-ide/bin/antigravity-ide" ] && ln -sf "$REAL_HOME/.local/share/antigravity-ide/bin/antigravity-ide" "$REAL_HOME/.local/bin/antigravity-ide"
     [ -f "$REAL_HOME/.local/share/antigravity-app/antigravity" ] && ln -sf "$REAL_HOME/.local/share/antigravity-app/antigravity" "$REAL_HOME/.local/bin/antigravity"
-    chmod +x "$REAL_HOME"/.config/autostart/*.desktop 2>/dev/null || true
+    chmod 644 "$REAL_HOME"/.config/autostart/*.desktop 2>/dev/null || true
     chmod +x "$REAL_HOME"/.local/share/applications/antigravity*.desktop 2>/dev/null || true
+
+    # Install Antigravity Link extension & ensure firewalld port 3000 is open
+    if [ -f "$REAL_HOME/.local/share/antigravity-ide/bin/antigravity-ide" ]; then
+        "$REAL_HOME/.local/share/antigravity-ide/bin/antigravity-ide" --install-extension cafetechne.antigravity-link-extension 2>/dev/null || true
+    fi
+    sudo firewall-cmd --permanent --add-port=3000/tcp 2>/dev/null || true
+    sudo firewall-cmd --reload 2>/dev/null || true
 
     # 5. Libation (Binaries & Library Database)
     if [ -d "$BACKUP_DIR/.local/lib/libation" ] && [ ! -d "$REAL_HOME/.local/lib/libation" ]; then
