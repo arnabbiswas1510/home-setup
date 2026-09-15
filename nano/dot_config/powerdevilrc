@@ -1,3 +1,6 @@
+[AC][HandleButtonEvents]
+lidAction=0
+
 [AC][SuspendAndShutdown]
 AutoSuspendAction=0
 AutoSuspendIdleTimeoutSec=0
