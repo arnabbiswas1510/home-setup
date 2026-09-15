@@ -1,5 +1,6 @@
 [Added Associations]
 application/epub+zip=mupdf.desktop;atril.desktop;com.github.johnfactotum.Foliate.desktop;org.kde.ark.desktop;lxqt-archiver.desktop;org.gnome.FileRoller.desktop;org.gnome.Nautilus.desktop;
+application/pdf=mupdf.desktop;google-chrome.desktop;mupdf-gl.desktop;com.google.Chrome.desktop;
 image/jpeg=qimgv.desktop;feh.desktop;org.kde.gwenview.desktop;org.gnome.Loupe.desktop;display-im7.q16.desktop;okularApplication_kimgio.desktop;org.xfce.ristretto.desktop;firefox-esr.desktop;org.gnome.Shotwell-Viewer.desktop;com.google.Chrome.desktop;gimp.desktop;lximage-qt.desktop;google-chrome.desktop;
 video/mp4=info.smplayer.SMPlayer.desktop;org.kde.dragonplayer.desktop;org.gnome.Totem.desktop;io.mpv.Mpv.desktop;
 video/vnd.avi=info.smplayer.SMPlayer.desktop;org.kde.dragonplayer.desktop;org.gnome.Totem.desktop;io.mpv.Mpv.desktop;
@@ -10,6 +11,7 @@ x-scheme-handler/https=firefox-esr.desktop;
 [Default Applications]
 application/epub+zip=mupdf.desktop;
 application/msword=google-chrome.desktop
+application/pdf=mupdf.desktop;
 application/vnd.ms-excel=google-chrome.desktop
 application/vnd.ms-powerpoint=google-chrome.desktop
 application/vnd.openxmlformats-officedocument.presentationml.presentation=google-chrome.desktop
