@@ -113,7 +113,10 @@ sudo tee -a /etc/fstab > /dev/null << 'FSTAB_EOF'
 //192.168.1.50/media2      /mnt/media2      cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
 //192.168.1.50/tvShows     /mnt/tvShows     cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
 //192.168.1.50/scratch     /mnt/scratch     cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
+//192.168.1.50/storage     /mnt/storage     cifs credentials=/etc/samba/credentials-192.168.1.50,uid=1000,gid=1000,iocharset=utf8,nofail,_netdev,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto 0 0
 FSTAB_EOF
+
+sudo mkdir -p /mnt/pom /mnt/books /mnt/media1 /mnt/media2 /mnt/tvShows /mnt/scratch /mnt/storage
 
 sudo systemctl daemon-reload
 sudo systemctl restart remote-fs.target 2>/dev/null || true
