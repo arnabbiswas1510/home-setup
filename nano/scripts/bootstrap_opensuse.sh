@@ -60,7 +60,7 @@ sudo zypper --non-interactive install -y --force-resolution \
   lz4 liblz4-devel dpkg bolt chezmoi \
   intel-media-driver libva-utils ffmpeg \
   gstreamer-plugins-good gstreamer-plugins-bad gstreamer-utils \
-  libcamera-cam libcamera-qcam kdeplasma6-addons || true
+  libcamera-cam libcamera-qcam kdeplasma6-addons spectacle mupdf || true
 
 # 4. Intel ThinkPad X1 Nano Hardware & Dock Tweaks
 echo ""
