@@ -10,7 +10,7 @@ Switch to Next Keyboard Layout=Meta+Alt+K,Meta+Alt+K,
 _k_friendly_name=Keyboard Layout Switcher
 
 [com.dec05eba.gpu_screen_recorder]
-_k_friendly_name=com.dec05eba.gpu_screen_recorder
+_k_friendly_name=GPU Screen Recorder
 gpu_screen_recorder_pause_unpause_recording=Alt+2,Alt+2,Pause/unpause recording
 gpu_screen_recorder_save_replay=Alt+3,Alt+3,Save replay
 gpu_screen_recorder_start_stop_recording=Alt+1,Alt+1,Start/stop recording/replay/streaming
