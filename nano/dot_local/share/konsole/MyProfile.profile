@@ -5,3 +5,4 @@ Parent=FALLBACK/
 [Interaction Options]
 AutoCopySelectedText=true
 CopyTextAsHTML=false
+RightClickPasteMode=2
