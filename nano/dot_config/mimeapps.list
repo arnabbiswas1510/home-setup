@@ -6,6 +6,7 @@ video/matroska=io.mpv.Mpv.desktop;info.smplayer.SMPlayer.desktop;org.avidemux.Av
 video/mp4=info.smplayer.SMPlayer.desktop;org.kde.dragonplayer.desktop;org.gnome.Totem.desktop;io.mpv.Mpv.desktop;
 video/vnd.avi=info.smplayer.SMPlayer.desktop;org.kde.dragonplayer.desktop;org.gnome.Totem.desktop;io.mpv.Mpv.desktop;
 video/x-matroska=info.smplayer.SMPlayer.desktop;org.avidemux.Avidemux.desktop;smplayer_enqueue.desktop;io.mpv.Mpv.desktop;mpv.desktop;org.gnome.Totem.desktop;org.xfce.Parole.desktop;org.videolan.VLC.desktop;smplayer.desktop;
+video/x-ms-wmv=io.mpv.Mpv.desktop;info.smplayer.SMPlayer.desktop;org.avidemux.Avidemux.desktop;mpv.desktop;smplayer_enqueue.desktop;smplayer.desktop;org.videolan.VLC.desktop;
 x-scheme-handler/http=firefox-esr.desktop;
 x-scheme-handler/https=firefox-esr.desktop;
 
@@ -24,6 +25,7 @@ video/matroska=io.mpv.Mpv.desktop;
 video/mp4=info.smplayer.SMPlayer.desktop;
 video/vnd.avi=info.smplayer.SMPlayer.desktop;
 video/x-matroska=info.smplayer.SMPlayer.desktop;
+video/x-ms-wmv=io.mpv.Mpv.desktop;
 x-scheme-handler/antigravity=antigravity.desktop
 x-scheme-handler/http=google-chrome.desktop
 x-scheme-handler/https=google-chrome.desktop
