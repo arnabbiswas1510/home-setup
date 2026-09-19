@@ -18,7 +18,7 @@ main.record_area_height 1080
 main.record_area_option portal
 main.record_area_width 1920
 main.record_cursor false
-main.restore_portal_session true
+main.restore_portal_session false
 main.show_recording_saved_notifications true
 main.show_recording_started_notifications false
 main.show_recording_stopped_notifications false
