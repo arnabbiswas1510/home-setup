@@ -4,9 +4,6 @@ Id_2=20cc28e8-7f65-4834-954e-e31fc0761a67
 Number=2
 Rows=1
 
-[Effect-zoom]
-InitialZoom=1.211331988904408
-
 [Plugins]
 diminactiveEnabled=true
 
