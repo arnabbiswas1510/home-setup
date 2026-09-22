@@ -6,6 +6,7 @@ Rows=1
 
 [Plugins]
 diminactiveEnabled=true
+zoomEnabled=false
 
 [Tiling][094c4458-3fd6-5260-9d6b-502c6fefda87]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
