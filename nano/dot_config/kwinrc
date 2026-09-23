@@ -100,7 +100,7 @@ BorderWidth=2
 RollOverDesktops=true
 
 [Xwayland]
-Scale=1.25
+Scale=1.3
 
 [org.kde.kdecoration2]
 BorderSizeAuto=false
