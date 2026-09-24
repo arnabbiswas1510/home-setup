@@ -154,7 +154,7 @@
    </metadata>
   </info>
  </bookmark>
- <bookmark href="file:///mnt/pom/docker/config/qbittorrent/downloads">
+ <bookmark href="file:///home/pom/docker/config/qbittorrent/downloads">
   <title>torrents</title>
   <info>
    <metadata owner="http://freedesktop.org">
