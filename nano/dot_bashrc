@@ -118,3 +118,7 @@ export PATH="/home/pom/.local/bin:$PATH"
 export PATH="/home/pom/workspace/vidsniff/vidsniff/.venv/bin:$PATH"  # vidsniff
 
 . "$HOME/.local/share/../bin/env"
+
+# OpenAI-compatible LLM endpoint
+export OPENAI_BASE_URL="http://192.168.1.50:11434/v1"
+export OPENAI_API_KEY="ollama"
