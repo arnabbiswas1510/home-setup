@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily Indian Gods Desktop Wallpaper Service
+After=graphical-session.target network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/daily-wallpaper
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

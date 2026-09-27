@@ -1,0 +1,171 @@
+#!/usr/bin/env python3
+"""
+Daily Wallpaper Rotator - Indian Gods & Goddesses Collection
+Rotates the desktop wallpaper daily from the IndianGods wallpaper repository.
+Supports KDE Plasma (6 & 5), GNOME, macOS, and generic window managers.
+"""
+
+import os
+import sys
+import json
+import random
+import hashlib
+import shutil
+import subprocess
+from pathlib import Path
+from datetime import date
+
+SMB_HOST = "192.168.1.50"
+SMB_SHARE = "photos"
+SMB_SUBDIR = "Wallpapers/IndianGods"
+SMB_USER = "pom"
+SMB_PASS = "paro"
+
+CACHE_DIR = Path.home() / ".cache" / "daily-wallpaper"
+CACHE_INFO = CACHE_DIR / "current.json"
+
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+
+def log(msg: str):
+    print(f"[DailyWallpaper] {msg}", flush=True)
+
+def find_wallpaper_dir() -> Path:
+    candidates = [
+        Path.home() / "wallpapers" / "IndianGods",
+        Path.home() / ".local" / "share" / "wallpapers" / "IndianGods",
+        Path.home() / "Pictures" / "Wallpapers" / "IndianGods",
+        Path("/mnt/photos/Wallpapers/IndianGods"),
+    ]
+
+    for p in candidates:
+        if p.exists() and p.is_dir():
+            imgs = [f for f in p.iterdir() if f.suffix.lower() in IMAGE_EXTENSIONS]
+            if len(imgs) >= 1:
+                return p
+
+    # If no local directory found, create ~/wallpapers/IndianGods
+    default_dir = Path.home() / "wallpapers" / "IndianGods"
+    default_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Try syncing from SMB if smbclient is available
+    if shutil.which("smbclient"):
+        log(f"No local wallpapers found. Attempting to sync from smb://{SMB_HOST}/{SMB_SHARE}/{SMB_SUBDIR}...")
+        try:
+            cmd = [
+                "smbclient",
+                f"//{SMB_HOST}/{SMB_SHARE}",
+                f"-U{SMB_USER}%{SMB_PASS}",
+                "-c",
+                f"cd {SMB_SUBDIR}; prompt OFF; recurse ON; lcd {default_dir}; mget *"
+            ]
+            subprocess.run(cmd, timeout=90, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception as e:
+            log(f"SMB sync skipped/failed: {e}")
+
+    return default_dir
+
+def get_images(wp_dir: Path):
+    if not wp_dir.exists():
+        return []
+    files = [f for f in wp_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTENSIONS]
+    files.sort(key=lambda x: x.name.lower())
+    return files
+
+def set_desktop_wallpaper(img_path: Path):
+    path_str = str(img_path.resolve())
+    applied_to = []
+
+    # 1. KDE Plasma
+    if shutil.which("plasma-apply-wallpaperimage"):
+        try:
+            res = subprocess.run(["plasma-apply-wallpaperimage", path_str],
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            if res.returncode == 0:
+                applied_to.append("KDE Plasma")
+        except Exception as e:
+            log(f"Warning calling plasma-apply-wallpaperimage: {e}")
+
+    # 2. GNOME Desktop
+    if shutil.which("gsettings"):
+        try:
+            uri = f"file://{path_str}"
+            subprocess.run(["gsettings", "set", "org.gnome.desktop.background", "picture-uri", uri],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(["gsettings", "set", "org.gnome.desktop.background", "picture-uri-dark", uri],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            applied_to.append("GNOME Desktop")
+        except Exception:
+            pass
+
+    # 3. macOS
+    if sys.platform == "darwin" and shutil.which("osascript"):
+        try:
+            script = f'tell application "Finder" to set desktop picture to POSIX file "{path_str}"'
+            subprocess.run(["osascript", "-e", script], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            applied_to.append("macOS Finder")
+        except Exception:
+            pass
+
+    # 4. X11 / Feh
+    if shutil.which("feh") and os.environ.get("DISPLAY"):
+        try:
+            subprocess.run(["feh", "--bg-fill", path_str], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            applied_to.append("Feh (X11)")
+        except Exception:
+            pass
+
+    return applied_to
+
+def extract_deity_name(filename: str) -> str:
+    tokens = filename.split("_")
+    if len(tokens) >= 3 and tokens[0].lower() == "wikideity":
+        return f"{tokens[1]} {tokens[2]}"
+    elif len(tokens) >= 2 and tokens[0].lower() in ("myphotos", "starterpack"):
+        return tokens[1]
+    return "Indian Deity"
+
+def main():
+    force_random = "--random" in sys.argv or "-r" in sys.argv
+
+    wp_dir = find_wallpaper_dir()
+    images = get_images(wp_dir)
+
+    if not images:
+        log(f"Error: No wallpaper images found in {wp_dir}")
+        sys.exit(1)
+
+    today_str = date.today().isoformat()
+
+    if force_random:
+        chosen = random.choice(images)
+        mode = "random"
+    else:
+        # Deterministic daily rotation: seed with today's date
+        seed_val = int(hashlib.sha256(today_str.encode("utf-8")).hexdigest(), 16)
+        chosen = images[seed_val % len(images)]
+        mode = "daily"
+
+    deity = extract_deity_name(chosen.name)
+    log(f"Rotating main desktop wallpaper ({mode}):")
+    log(f"  Deity: {deity}")
+    log(f"  File: {chosen.name}")
+    log(f"  Path: {chosen}")
+
+    targets = set_desktop_wallpaper(chosen)
+    if targets:
+        log(f"Successfully applied wallpaper for: {', '.join(targets)}")
+    else:
+        log(f"Wallpaper selected ({chosen.name}), but no supported desktop environment CLI was active.")
+
+    # Record current state
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    with open(CACHE_INFO, "w", encoding="utf-8") as f:
+        json.dump({
+            "date": today_str,
+            "filename": chosen.name,
+            "path": str(chosen),
+            "deity": deity
+        }, f, indent=2)
+
+if __name__ == "__main__":
+    main()

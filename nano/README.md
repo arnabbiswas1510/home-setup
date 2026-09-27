@@ -67,9 +67,23 @@ Refer to [`apps.yaml`](./apps.yaml) to install the vanilla applications on a fre
 ### 3. `iptvnator`
 - **Stalker Source Database Seed**: [`dot_iptvnator/databases/iptvnator.db`](./dot_iptvnator/databases/iptvnator.db)
   - Pre-seeded SQLite database configured with the `b4u` Stalker portal (`http://portal.elite4k.co/stalker_portal/server/load.php`) and MAC address `00:1A:79:35:36:33`.
-- **Idempotent Setup Script**: [`run_once_after_setup-iptvnator.py`](./run_once_after_setup-iptvnator.py)
+- **Idempotent Setup Script**: [`run_once_after_setup-iptvnator.sh`](./run_once_after_setup-iptvnator.sh)
   - Runs automatically on `chezmoi apply` to ensure the stalker portal entry is idempotently registered even if the app has already initialized its database.
 - **Player & Window Defaults**: [`dot_config/IPTVnator/config.json`](./dot_config/IPTVnator/config.json)
+
+### 4. `Wallpaper & Lock Screen Automation`
+- **Lock Screen (`freshbing` - Bing Picture of the Day)**:
+  - Script: [`dot_local/bin/executable_freshbing`](./dot_local/bin/executable_freshbing)
+  - Service: [`dot_config/systemd/user/freshbing.service`](./dot_config/systemd/user/freshbing.service)
+  - Timer: [`dot_config/systemd/user/freshbing.timer`](./dot_config/systemd/user/freshbing.timer)
+  - Automatically downloads Bing's UHD Picture of the Day and sets the lock screen wallpaper (KDE Plasma 6/5 `kscreenlockerrc`, GNOME `gsettings`, and generic screenlockers).
+- **Desktop Wallpaper (`daily-wallpaper` - Indian Gods Collection)**:
+  - Script: [`dot_local/bin/executable_daily-wallpaper`](./dot_local/bin/executable_daily-wallpaper)
+  - Service: [`dot_config/systemd/user/daily-wallpaper.service`](./dot_config/systemd/user/daily-wallpaper.service)
+  - Timer: [`dot_config/systemd/user/daily-wallpaper.timer`](./dot_config/systemd/user/daily-wallpaper.timer)
+  - Rotates the desktop wallpaper everyday from `~/wallpapers/IndianGods` using deterministic date hashing (supports KDE Plasma `plasma-apply-wallpaperimage`, GNOME, macOS, and X11).
+- **Chezmoi Hook**: [`run_onchange_after_setup-wallpapers.sh`](./run_onchange_after_setup-wallpapers.sh)
+  - Enables and activates both user timers on `chezmoi apply`.
 
 ---
 
