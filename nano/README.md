@@ -1,154 +1,81 @@
 # Nano Machine Setup (`nano`)
 
-Configuration, dotfiles, hardware fixes, system configuration backups, and automation for **Lenovo ThinkPad X1 Nano Gen 3** running **Debian 13 (Trixie)** with **KDE Plasma 6 (Wayland)**.
+Minimal, portable dotfile configurations managed by [chezmoi](https://www.chezmoi.io/) for the **Nano** workstation.
 
 ---
 
-## 📁 Folder Structure
+## 🎯 Architecture & Philosophy
 
-```text
-nano/
-├── README.md                                    # Machine documentation & runbook
-├── .chezmoidata/
-│   └── hosts.toml                               # APT packages, repos, and service definitions for Nano
-├── run_onchange_before_00-install-packages.sh.tmpl # Automated APT & Flatpak installer
-├── run_onchange_after_10-setup-services.sh.tmpl   # Automated Systemd services setup
-├── run_onchange_after_20-install-user-tools.sh.tmpl# yt-dlp, Deno, & Antigravity CLI (agy) installer
-├── dot_bashrc                                   # Shell environment (~/.bashrc)
-├── dot_profile                                  # User profile (~/.profile)
-├── dot_config/
-│   ├── IPTVnator/                               # IPTV player configuration
-│   ├── dolphinrc                                # Dolphin file manager preferences & bookmarks
-│   ├── kdeglobals                               # KDE Plasma system appearance & colors
-│   ├── kglobalshortcutsrc                       # Global desktop shortcuts
-│   ├── konsolerc                                # Konsole terminal configuration
-│   ├── kwinrc                                   # KWin window management & tiling rules
-│   ├── mimeapps.list                            # Default application associations
-│   ├── qimgv/                                   # qimgv image viewer settings
-│   ├── spectaclerc                              # Spectacle screenshot configuration
-│   └── yt-dlp/                                  # yt-dlp global settings & format rules
-├── dot_gemini/
-│   └── config/mcp_config.json                   # Antigravity MCP Servers (Home Assistant, Garmin)
-├── dot_local/
-│   ├── bin/
-│   │   ├── executable_clean-cache.sh            # Local cache cleanup utility
-│   │   ├── executable_iptvnator                # Wayland/X11 launcher wrapper
-│   │   ├── executable_libation                  # Libation launcher wrapper
-│   │   └── executable_yt-autodownload           # YouTube playlist sync script
-│   └── share/
-│       ├── konsole/MyProfile.profile            # Custom Konsole profile
-│       └── user-places.xbel                     # Dolphin quick-access bookmarks & NAS shares
-├── etc/                                         # Direct backups of modified system configs in /etc
-│   ├── fstab                                    # /etc/fstab (btrfs root & CIFS NAS automounts)
-│   ├── environment                              # /etc/environment (KWin DRM environment)
-│   ├── environment.d/evdi.conf                  # /etc/environment.d/evdi.conf
-│   ├── default/grub.d/99-fastboot.cfg           # Fast boot GRUB timeout configuration
-│   ├── modprobe.d/
-│   │   ├── evdi.conf                            # EVDI dual-display configuration
-│   │   ├── i915-psr.conf                        # Intel GPU PSR disable
-│   │   └── nobeep.conf                          # PC speaker blacklisting
-│   ├── modules-load.d/evdi.conf                 # Early kernel module load configuration
-│   ├── udev/rules.d/99-displaylink-hotplug.rules# DisplayLink dock unplug udev rule
-│   ├── sysctl.d/50-kde-inotify-survey-...conf   # Inotify instances limit
-│   ├── samba/credentials-192.168.1.50.example   # Samba NAS credentials template
-│   └── apt/sources.list.d/                      # Third-party APT repositories
-├── os-tweaks/
-│   ├── apply_evdi_wayland_fix.sh                # DisplayLink EVDI hot-unplug fix & SDDM monitor sync
-│   ├── fix_dock_unplug.sh                       # Intel GPU PSR disable & dock unplug resilience
-│   ├── optimize_boot.sh                         # GRUB fastboot & CIFS automount timeout optimization
-│   └── setup_nas_mounts.sh                      # /etc/fstab CIFS mount setup for DietPi NAS
-└── scripts/
-    ├── install_agy.sh                           # Antigravity CLI (agy) standalone installer
-    ├── install_ohmyzsh.sh                       # Zsh & Oh-My-Zsh unattended setup
-    ├── install_plex.sh                          # Plex Desktop flatpak installation
-    └── install_syncthing.sh                     # Syncthing user service installer
+1. **Strictly Minimal & Dotfile-Focused**: Chezmoi is used solely to configure already-installed applications via minimal, portable dotfiles committed to this repository. Heavy automated package installers, OS scripts, and distribution-locked `/etc` files have been removed.
+2. **Decoupled Software Installation**: Vanilla applications are installed separately using the native/best tool for the OS (e.g. `pacman`/`paru` on Arch/CachyOS, `brew` on macOS/Linux, `apt` on Debian/Ubuntu, or Flatpak).
+3. **Software Inventory**: All applications are cataloged in [`apps.yaml`](./apps.yaml) for easy manual installation and reference.
+4. **Cross-Platform Portability**: Dotfiles use chezmoi templates (`{{ .chezmoi.homeDir }}`) and `.chezmoiignore` so they apply cleanly across Linux distributions or macOS without modification.
+
+---
+
+## 📋 Software Inventory (`apps.yaml`)
+
+Refer to [`apps.yaml`](./apps.yaml) to install the vanilla applications on a fresh machine:
+
+```yaml
+- Chezmoi list:
+    CLI:
+      - chezmoi
+      - linuxbrew
+      - yt-dlp (includes deno)
+      - syncthing
+      - freshbing
+      - ffmpeg
+    UI:
+      - VSCode
+      - VLC
+      - Zoom
+      - gpu-screen-recorder
+      - iptvnator
+      - Plex Desktop
+      - Jellyfin Desktop
+      - ZapZap
+      - Solaar (Logitech stuff)
+      - Libation (along with audible-cli)
+      - Cimfax
+      - Antigravity IDE with Antigravity Link
 ```
 
 ---
 
-## 🚀 Quick Setup with chezmoi
+## 🛠️ Configured Applications
 
-Apply configurations directly to the system using `chezmoi`:
+### 1. `gpu-screen-recorder`
+- **Native UI Settings**: [`dot_config/gpu-screen-recorder/config_ui.tmpl`](./dot_config/gpu-screen-recorder/config_ui.tmpl)
+  - Configures 60 FPS, hardware HEVC / H.265 encoding, Opus audio, MP4 container, and dynamic home paths (`{{ .chezmoi.homeDir }}/Videos`).
+- **Flatpak Settings**: [`dot_var/app/com.dec05eba.gpu_screen_recorder/config/gpu-screen-recorder/config.tmpl`](./dot_var/app/com.dec05eba.gpu_screen_recorder/config/gpu-screen-recorder/config.tmpl)
+- **Virtual Silent Sink**: [`dot_config/pipewire/pipewire.conf.d/10-silent-sink.conf`](./dot_config/pipewire/pipewire.conf.d/10-silent-sink.conf)
+- **Auto-Silence & Title Renaming**:
+  - Daemon: `dot_local/bin/executable_gsr-audio-auto-silence.sh`
+  - Renamer: `dot_local/bin/executable_gsr-rename-latest.py`
+  - Service: `dot_config/systemd/user/gsr-audio-silence.service`
 
-```bash
-# Apply dotfiles and system packages for Nano
-chezmoi apply --source ~/workspace/home-setup/nano
-```
+### 2. `yt-dlp` (with Deno and FFmpeg)
+- **Config**: [`dot_config/yt-dlp/config.tmpl`](./dot_config/yt-dlp/config.tmpl)
+  - Best video & audio merging into MP4 using FFmpeg (`--merge-output-format mp4`).
+  - Deno integration for YouTube signature and JavaScript challenge solving (`--js-runtimes deno`, `--remote-components ejs:github`).
+  - Metadata and thumbnail embedding (`--add-metadata`, `--embed-thumbnail`).
+  - Download archive tracking (`~/.config/yt-dlp/archive.txt`) and Firefox cookie integration.
+- **Playlists**: [`dot_config/yt-dlp/playlists.txt`](./dot_config/yt-dlp/playlists.txt)
+- **Shell PATH Integration**: [`dot_profile`](./dot_profile) and [`dot_bashrc`](./dot_bashrc) ensure `~/.local/bin`, `~/.deno/bin`, and Homebrew / Linuxbrew (`/home/linuxbrew/.linuxbrew/bin`, `/opt/homebrew/bin`) are always exported.
 
----
-
-## 🔧 Hardware & OS Tweaks (`os-tweaks/`)
-
-### 1. DisplayLink & Wayland Dock Stability (`apply_evdi_wayland_fix.sh`)
-- Configures EVDI virtual display count to 2 matching the physical dock monitors.
-- Adds udev rules to reset `displaylink-driver` on dock unplug.
-- Sets `KWIN_DRM_USE_MODIFIER=0` and device paths for DRM stability.
-- Syncs `kwinoutputconfig.json` to SDDM for lid-closed multi-monitor login.
-
-```bash
-sudo ./os-tweaks/apply_evdi_wayland_fix.sh
-```
-
-### 2. Dock Unplug Freeze & BIOS Beep Fix (`fix_dock_unplug.sh`)
-- Disables Intel GPU Panel Self Refresh (`enable_psr=0` for `i915` and `xe`).
-- Blacklists `pcspkr` and `snd_pcsp`.
-- Updates initramfs for early boot persistence.
-
-```bash
-sudo ./os-tweaks/fix_dock_unplug.sh
-```
-
-### 3. Fast Boot Optimization (`optimize_boot.sh`)
-- Configures instant GRUB boot (`GRUB_TIMEOUT=0`).
-- Disables `NetworkManager-wait-online.service`.
-- Adds `x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s,noauto` to `/etc/fstab` CIFS shares.
-
-```bash
-sudo ./os-tweaks/optimize_boot.sh
-```
-
-### 4. NAS Mounts Auto-Configuration (`setup_nas_mounts.sh`)
-- Installs `cifs-utils`.
-- Mounts DietPi Samba shares (`/mnt/dietpi`, `/mnt/dietpi-home`, `/mnt/books`, `/mnt/media1`, `/mnt/media2`, `/mnt/tvShows`, `/mnt/scratch`) with credentials and systemd automount.
-
-```bash
-sudo ./os-tweaks/setup_nas_mounts.sh
-```
+### 3. `iptvnator`
+- **Stalker Source Database Seed**: [`dot_iptvnator/databases/iptvnator.db`](./dot_iptvnator/databases/iptvnator.db)
+  - Pre-seeded SQLite database configured with the `b4u` Stalker portal (`http://portal.elite4k.co/stalker_portal/server/load.php`) and MAC address `00:1A:79:35:36:33`.
+- **Idempotent Setup Script**: [`run_once_after_setup-iptvnator.py`](./run_once_after_setup-iptvnator.py)
+  - Runs automatically on `chezmoi apply` to ensure the stalker portal entry is idempotently registered even if the app has already initialized its database.
+- **Player & Window Defaults**: [`dot_config/IPTVnator/config.json`](./dot_config/IPTVnator/config.json)
 
 ---
 
-## 🔄 Pain-Free Fedora Migration Runbook
+## 🚀 Applying with Chezmoi
 
-To migrate the `Nano` workstation from Debian 13 to **Fedora KDE Plasma Spin**:
-
-### Phase 1: Pre-Migration Backup (Fail-Safe Snapshot)
-Run the automated backup script to rsync `/home/pom` and system configs to DietPi NAS (`/mnt/media1`):
 ```bash
-cd ~/workspace/home-setup/nano/scripts
-./pre_migration_backup.sh
+# Apply dotfiles to the current user environment
+chezmoi apply --source ~/Workspace/home-setup/nano
 ```
-
-### Phase 2: Install Fedora KDE Plasma Edition
-1. Download **Fedora KDE Plasma Desktop x86_64 ISO** and write to USB.
-2. Boot USB installer (Anaconda):
-   - Select NVMe drive.
-   - Choose default **Btrfs** partitioning (creates clean, isolated `@root` and `@home` subvolumes with transparent zstd compression).
-   - Create user `pom` with administrative privileges.
-
-### Phase 3: Post-Install Instant Bootstrap
-Boot into the new Fedora install, open Konsole, and run:
-```bash
-# Clone home-setup (or restore ~/workspace/home-setup from NAS backup)
-git clone git@github.com:arnabbiswas1510/home-setup.git ~/workspace/home-setup
-cd ~/workspace/home-setup/nano/scripts
-./bootstrap_fedora.sh
-```
-
-This single command:
-1. Enables RPM Fusion (Free & Nonfree) and vendor repos (Google Chrome, Sublime Text, Tailscale).
-2. Installs all DNF package equivalents & multimedia codecs.
-3. Installs all 16 Flatpaks from Flathub.
-4. Mounts DietPi NAS CIFS shares in `/etc/fstab`.
-5. Applies ThinkPad X1 Nano tweaks (Intel GPU PSR fix, DisplayLink EVDI Wayland, dracut).
-6. Restores dotfiles with chezmoi.
-7. Enables all systemd background services and timers (`syncthing`, `rclone-gdrive`, `autosync`, `auto-rename-recordings`, etc.).

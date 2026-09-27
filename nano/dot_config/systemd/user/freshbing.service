@@ -6,7 +6,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/home/pom/.local/bin/freshbing
+ExecStart=%h/.local/bin/freshbing
 StandardOutput=journal
 StandardError=journal
 

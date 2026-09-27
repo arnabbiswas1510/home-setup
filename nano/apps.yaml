@@ -1,0 +1,33 @@
+# ==============================================================================
+# Software Installation List for Nano Workstation
+# ==============================================================================
+# Philosophy:
+# Vanilla applications are installed separately using the native/best install
+# tools for the target OS (e.g. pacman/paru on Arch/CachyOS, brew on macOS/Linux,
+# apt on Debian/Ubuntu, or flatpak).
+#
+# Chezmoi is used exclusively to manage and apply the minimal, portable dotfiles
+# once the software is installed.
+# ==============================================================================
+
+- Chezmoi list:
+    CLI:
+      - chezmoi
+      - linuxbrew
+      - yt-dlp (includes deno)
+      - syncthing
+      - freshbing
+      - ffmpeg
+    UI:
+      - VSCode
+      - VLC
+      - Zoom
+      - gpu-screen-recorder
+      - iptvnator
+      - Plex Desktop
+      - Jellyfin Desktop
+      - ZapZap
+      - Solaar (Logitech stuff)
+      - Libation (along with audible-cli)
+      - Cimfax
+      - Antigravity IDE with Antigravity Link

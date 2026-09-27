@@ -1,0 +1,2 @@
+# YouTube Playlists and Channel URLs for automated downloading via yt-autodownload
+# Add one URL per line. Lines starting with # are ignored.

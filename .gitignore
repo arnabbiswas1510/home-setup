@@ -18,3 +18,4 @@ __pycache__/
 *.sqlite3
 *.db
 *.log
+!nano/dot_iptvnator/databases/iptvnator.db

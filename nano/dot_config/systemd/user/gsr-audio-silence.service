@@ -1,0 +1,13 @@
+[Unit]
+Description=Auto-silence applications recorded by GPU Screen Recorder
+After=pipewire.service pipewire-pulse.service
+Wants=pipewire-pulse.service
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/gsr-audio-auto-silence.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

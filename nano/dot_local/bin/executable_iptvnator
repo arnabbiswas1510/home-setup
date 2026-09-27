@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-exec /home/pom/.local/lib/iptvnator/iptvnator --ozone-platform=x11 "$@"

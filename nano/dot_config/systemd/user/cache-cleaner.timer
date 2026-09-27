@@ -1,9 +1,0 @@
-[Unit]
-Description=Automated Daily Cache Cleaner Timer
-
-[Timer]
-OnCalendar=daily
-Persistent=true
-
-[Install]
-WantedBy=timers.target

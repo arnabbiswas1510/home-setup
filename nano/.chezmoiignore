@@ -1,0 +1,10 @@
+# Informational and repository root files
+apps.yaml
+README.md
+
+# Ignore Linux-specific configurations when on macOS (Darwin)
+{{- if ne .chezmoi.os "linux" }}
+.config/pipewire/**
+.config/systemd/**
+.var/**
+{{- end }}
