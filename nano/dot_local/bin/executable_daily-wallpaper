@@ -3,6 +3,9 @@
 Daily Wallpaper Rotator - Indian Gods & Goddesses Collection
 Rotates the desktop wallpaper daily from the IndianGods wallpaper repository.
 Supports KDE Plasma (6 & 5), GNOME, macOS, and generic window managers.
+Features Smart Ambient Canvas: automatically frames non-widescreen portraits
+with color-matched atmospheric wings to guarantee deity crowns, halos, and
+heads are never cropped by desktop displays.
 """
 
 import os
@@ -15,6 +18,14 @@ import subprocess
 from pathlib import Path
 from datetime import date
 
+# Ensure virtualenv with Pillow is loaded if available
+try:
+    from PIL import Image, ImageFilter, ImageEnhance
+except ImportError:
+    venv_py = Path.home() / ".local" / "share" / "daily-wallpaper" / "venv" / "bin" / "python"
+    if venv_py.exists() and sys.executable != str(venv_py):
+        os.execv(str(venv_py), [str(venv_py)] + sys.argv)
+
 SMB_HOST = "192.168.1.50"
 SMB_SHARE = "photos"
 SMB_SUBDIR = "Wallpapers/IndianGods"
@@ -23,6 +34,7 @@ SMB_PASS = "paro"
 
 CACHE_DIR = Path.home() / ".cache" / "daily-wallpaper"
 CACHE_INFO = CACHE_DIR / "current.json"
+PROCESSED_DIR = CACHE_DIR / "processed"
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
@@ -70,6 +82,86 @@ def get_images(wp_dir: Path):
     files = [f for f in wp_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTENSIONS]
     files.sort(key=lambda x: x.name.lower())
     return files
+
+def create_smart_ambient_wallpaper(src_path: Path, target_size=(3840, 2160)) -> Path:
+    """
+    Inspects image aspect ratio. If not 16:9 widescreen (e.g. portrait or square),
+    constructs a high-res 16:9 canvas with:
+    - The complete, uncropped deity in the foreground with safe breathing margins
+      so crowns, halos, and lotus feet are never cut off.
+    - Soft realistic drop shadow for visual depth.
+    - Beautiful ambient color-matched background blurred from the artwork itself.
+    Caches result by file mtime and hash.
+    """
+    try:
+        from PIL import Image, ImageFilter, ImageEnhance
+    except ImportError:
+        return src_path
+
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+    try:
+        mtime = src_path.stat().st_mtime
+        key_str = f"{src_path.name}_{mtime}_{target_size[0]}x{target_size[1]}"
+        cache_hash = hashlib.md5(key_str.encode("utf-8")).hexdigest()[:12]
+        cached_file = PROCESSED_DIR / f"{cache_hash}_{src_path.stem}_ambient.jpg"
+
+        if cached_file.exists():
+            return cached_file
+
+        with Image.open(src_path) as raw_im:
+            im = raw_im.convert("RGBA")
+
+        tw, th = target_size
+        img_aspect = im.width / im.height
+
+        # If already close to 16:9 widescreen (1.65 to 1.85), keep original
+        if 1.65 <= img_aspect <= 1.85:
+            return src_path
+
+        # 1. Ambient Background: scale to fill canvas and blur heavily
+        bg_scale = max(tw / im.width, th / im.height)
+        bg_w, bg_h = int(im.width * bg_scale), int(im.height * bg_scale)
+        bg = im.resize((bg_w, bg_h), Image.Resampling.LANCZOS)
+
+        cx = (bg_w - tw) // 2
+        cy = (bg_h - th) // 2
+        bg = bg.crop((cx, cy, cx + tw, cy + th))
+        bg = bg.filter(ImageFilter.GaussianBlur(radius=55))
+        bg = ImageEnhance.Brightness(bg).enhance(0.55)
+        bg = ImageEnhance.Color(bg).enhance(0.85)
+
+        # 2. Foreground: scale deity with safe margins (5% top, 4% bottom)
+        margin_top = 0.05
+        margin_bottom = 0.04
+        avail_h = int(th * (1.0 - margin_top - margin_bottom))
+        avail_w = int(tw * 0.95)
+
+        scale = min(avail_h / im.height, avail_w / im.width)
+        fg_w = int(im.width * scale)
+        fg_h = int(im.height * scale)
+        fg = im.resize((fg_w, fg_h), Image.Resampling.LANCZOS)
+
+        fg_x = (tw - fg_w) // 2
+        fg_y = int(th * margin_top) + (avail_h - fg_h) // 2
+
+        # 3. Soft drop shadow behind foreground
+        shadow = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
+        shadow_box = Image.new("RGBA", (fg_w + 32, fg_h + 32), (0, 0, 0, 175))
+        shadow.paste(shadow_box, (fg_x - 16, fg_y - 8))
+        shadow = shadow.filter(ImageFilter.GaussianBlur(radius=28))
+
+        # 4. Composite
+        canvas = bg.copy()
+        canvas.alpha_composite(shadow)
+        canvas.alpha_composite(fg, (fg_x, fg_y))
+
+        canvas.convert("RGB").save(cached_file, "JPEG", quality=95, optimize=True)
+        log(f"Generated smart ambient canvas: {cached_file.name} (aspect: {img_aspect:.2f})")
+        return cached_file
+    except Exception as e:
+        log(f"Warning: smart wallpaper generation failed ({e}), using original.")
+        return src_path
 
 def set_desktop_wallpaper(img_path: Path):
     path_str = str(img_path.resolve())
@@ -151,7 +243,11 @@ def main():
     log(f"  File: {chosen.name}")
     log(f"  Path: {chosen}")
 
-    targets = set_desktop_wallpaper(chosen)
+    # Smart framing to guarantee no heads/crowns are cut off
+    wallpaper_to_set = create_smart_ambient_wallpaper(chosen)
+    log(f"  Applying: {wallpaper_to_set.name}")
+
+    targets = set_desktop_wallpaper(wallpaper_to_set)
     if targets:
         log(f"Successfully applied wallpaper for: {', '.join(targets)}")
     else:
@@ -164,6 +260,7 @@ def main():
             "date": today_str,
             "filename": chosen.name,
             "path": str(chosen),
+            "applied_path": str(wallpaper_to_set),
             "deity": deity
         }, f, indent=2)
 
