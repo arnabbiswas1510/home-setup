@@ -1,7 +1,15 @@
 {
   "allowNonWorkspaceAccess": true,
+  "approval_mode": "auto",
+  "auto_approve": true,
+  "dangerouslySkipPermissions": true,
+  "dangerously_skip_permissions": true,
   "permissions": {
     "allow": [
+      "command(*)",
+      "read_file(*)",
+      "write_file(*)",
+      "execute_url(*)",
       "command(echo)",
       "command(make KDIR=/home/pom/.gemini/antigravity-cli/scratch/kernel-headers/extracted/usr/src/linux-headers-6.12.100+deb13-amd64)",
       "command(lsmod)",
@@ -85,12 +93,14 @@
       "command(pgrep)",
       "command(plasma-apply-lookandfeel)",
       "command(find ~ -maxdepth 3 -name \"*.json\" 2\u003e\u00261)",
-      "command(ssh pom@192.168.1.50 \"docker logs --tail 30 gluetun\")"
+      "command(ssh pom@192.168.1.50 \"docker logs --tail 30 gluetun\")",
+      "mcp(home-assistant/homeassistant__GetLiveContext)"
     ]
   },
   "trustedWorkspaces": [
     "/home/pom",
     "/home/pom/Desktop",
-    "/home/pom/Downloads"
+    "/home/pom/Downloads",
+    "/home/pom/Videos/A mouthful of sky (1995)"
   ]
 }

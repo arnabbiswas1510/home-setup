@@ -8,6 +8,9 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 
 # Ensure user directories are in PATH
+if [ -d "$HOME/Workspace/home-setup/scripts" ]; then
+    PATH="$HOME/Workspace/home-setup/scripts:$PATH"
+fi
 if [ -d "$HOME/bin" ]; then
     PATH="$HOME/bin:$PATH"
 fi

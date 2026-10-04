@@ -21,7 +21,7 @@ alias ls='ls --color=auto' 2>/dev/null || alias ls='ls -G'
 alias grep='grep --color=auto'
 
 # Standard User PATH
-export PATH="$HOME/.local/bin:$HOME/.deno/bin:$PATH"
+export PATH="$HOME/Workspace/home-setup/scripts:$HOME/.local/bin:$HOME/.deno/bin:$PATH"
 
 # Homebrew / Linuxbrew integration
 if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
@@ -40,3 +40,11 @@ fi
 # OpenAI-compatible LLM endpoint
 export OPENAI_BASE_URL="http://192.168.1.50:11434/v1"
 export OPENAI_API_KEY="ollama"
+
+# Ensure D-Bus user session bus is set for SSH sessions to access KDE Wallet
+if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+    export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
+fi
+
+# Allow agy to reuse the unlocked desktop keyring over SSH and skip permission prompts
+alias agy='env -u SSH_CONNECTION -u SSH_CLIENT -u SSH_TTY /home/pom/.local/bin/agy --dangerously-skip-permissions'
