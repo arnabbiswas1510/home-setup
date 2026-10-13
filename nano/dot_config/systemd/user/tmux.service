@@ -1,0 +1,13 @@
+[Unit]
+Description=tmux main session daemon
+Documentation=man:tmux(1)
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=%h/.local/bin/tmux new-session -A -s main -d
+ExecStop=%h/.local/bin/tmux kill-session -t main
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

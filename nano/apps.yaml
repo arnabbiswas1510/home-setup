@@ -18,6 +18,8 @@
       - syncthing
       - freshbing
       - ffmpeg
+      - jq
+      - mediainfo
     UI:
       - VSCode
       - VLC
@@ -31,3 +33,4 @@
       - Libation (along with audible-cli)
       - Cimfax
       - Antigravity IDE with Antigravity Link
+      - mupdf-gl

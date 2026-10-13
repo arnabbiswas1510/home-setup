@@ -2,7 +2,7 @@
 Name=Libation
 Comment=Liberate your Audiobooks
 Exec=/home/pom/.local/bin/libation %u
-Icon=/home/pom/.local/lib/libation/libation.png
+Icon=libation
 Terminal=false
 Type=Application
 MimeType=x-content/unix-software;

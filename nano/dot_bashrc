@@ -48,3 +48,15 @@ fi
 
 # Allow agy to reuse the unlocked desktop keyring over SSH and skip permission prompts
 alias agy='env -u SSH_CONNECTION -u SSH_CLIENT -u SSH_TTY /home/pom/.local/bin/agy --dangerously-skip-permissions'
+
+# Initialize zoxide
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init bash)"
+fi
+
+# Seamless tmux attach or create
+tm() {
+    tmux new-session -A -D -s "${1:-main}"
+}
+
+

@@ -2,7 +2,8 @@
 Name=MuPDF
 GenericName=PDF / Comic Reader
 Comment=Fast and lightweight PDF and Comic viewer
-Exec=/home/pom/.local/bin/mupdf-gl %f
+Exec=mupdf %f
+TryExec=mupdf
 Icon=mupdf
 Terminal=false
 Type=Application
