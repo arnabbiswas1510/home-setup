@@ -1,0 +1,400 @@
+#!/usr/bin/env python3
+"""
+split-episodes: Reusable CLI tool to split long recordings of TV series into individual episodes.
+Automatically creates an output folder matching the video name and names files with 'Episode ##'.
+Supports:
+  1. Fast audio silence detection (silencedetect)
+  2. Black frame scene transition detection (blackdetect)
+  3. Browser (Firefox Netflix/streaming) history correlation
+  4. Lossless stream copying with FFmpeg (-c copy)
+"""
+
+import os
+import sys
+import re
+import glob
+import time
+import shutil
+import sqlite3
+import argparse
+import datetime
+import subprocess
+from pathlib import Path
+
+def print_step(msg):
+    print(f"\033[1;34m==>\033[0m \033[1m{msg}\033[0m")
+
+def print_success(msg):
+    print(f"\033[1;32m==>\033[0m \033[1m{msg}\033[0m")
+
+def print_warn(msg):
+    print(f"\033[1;33m==> WARNING:\033[0m {msg}")
+
+def print_err(msg):
+    print(f"\033[1;31m==> ERROR:\033[0m {msg}", file=sys.stderr)
+
+def format_time(seconds):
+    h = int(seconds // 3600)
+    m = int((seconds % 3600) // 60)
+    s = seconds % 60
+    if h > 0:
+        return f"{h:02d}:{m:02d}:{s:04.1f}"
+    return f"{m:02d}:{s:04.1f}"
+
+def get_video_duration(video_path):
+    cmd = [
+        "ffprobe", "-v", "error",
+        "-show_entries", "format=duration",
+        "-of", "default=noprint_wrappers=1:nokey=1",
+        video_path
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if res.returncode != 0:
+        raise RuntimeError(f"Could not read video duration: {res.stderr.strip()}")
+    return float(res.stdout.strip())
+
+def scan_silences(video_path, noise_db="-30dB", min_silence=1.5, start_time=None, end_time=None):
+    """Fast audio-only silence scanner using ffmpeg silencedetect."""
+    cmd = ["ffmpeg"]
+    if start_time is not None:
+        cmd.extend(["-ss", str(start_time)])
+    if end_time is not None:
+        cmd.extend(["-to", str(end_time)])
+    cmd.extend([
+        "-i", video_path,
+        "-vn",
+        "-af", f"silencedetect=noise={noise_db}:d={min_silence}",
+        "-f", "null", "-"
+    ])
+    
+    proc = subprocess.run(cmd, stderr=subprocess.PIPE, text=True)
+    silences = []
+    base_offset = start_time if start_time else 0.0
+
+    curr_start = None
+    for line in proc.stderr.splitlines():
+        if "silence_start:" in line:
+            m = re.search(r"silence_start:\s*([0-9.]+)", line)
+            if m:
+                curr_start = float(m.group(1)) + base_offset
+        elif "silence_end:" in line:
+            m = re.search(r"silence_end:\s*([0-9.]+)\s*\|\s*silence_duration:\s*([0-9.]+)", line)
+            if m:
+                s_end = float(m.group(1)) + base_offset
+                dur = float(m.group(2))
+                s_start = curr_start if curr_start is not None else (s_end - dur)
+                silences.append((s_start, s_end, dur))
+                curr_start = None
+    return silences
+
+def scan_black_frames(video_path, start_time, end_time, min_duration=0.3, pic_th=0.95):
+    """Scans for black frames in a specific time window."""
+    cmd = [
+        "ffmpeg",
+        "-ss", str(max(0, start_time)),
+        "-to", str(end_time),
+        "-i", video_path,
+        "-vf", f"scale=160:-1,blackdetect=d={min_duration}:pic_th={pic_th}",
+        "-f", "null", "-"
+    ]
+    proc = subprocess.run(cmd, stderr=subprocess.PIPE, text=True)
+    blacks = []
+    base = max(0, start_time)
+    for line in proc.stderr.splitlines():
+        if "blackdetect" in line:
+            m = re.search(r"black_start:([0-9.]+)\s+black_end:([0-9.]+)\s+black_duration:([0-9.]+)", line)
+            if m:
+                bs = float(m.group(1)) + base
+                be = float(m.group(2)) + base
+                bd = float(m.group(3))
+                blacks.append((bs, be, bd))
+    return blacks
+
+def detect_from_browser_history(video_path):
+    """Correlates recording creation timestamp with Firefox streaming watch history."""
+    m = re.search(r"(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})", os.path.basename(video_path))
+    if m:
+        dt_str = f"{m.group(1)} {m.group(2).replace('-', ':')}"
+        try:
+            start_dt = datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            start_dt = datetime.datetime.fromtimestamp(os.path.getmtime(video_path))
+    else:
+        try:
+            dur = get_video_duration(video_path)
+            start_dt = datetime.datetime.fromtimestamp(os.path.getmtime(video_path) - dur)
+        except Exception:
+            start_dt = datetime.datetime.fromtimestamp(os.path.getmtime(video_path))
+
+    start_epoch = start_dt.timestamp()
+
+    ff_dirs = glob.glob(os.path.expanduser("~/.config/mozilla/firefox/*.default*")) + \
+              glob.glob(os.path.expanduser("~/.mozilla/firefox/*.default*"))
+    for d in ff_dirs:
+        db = os.path.join(d, "places.sqlite")
+        if os.path.exists(db):
+            tmp_db = f"/tmp/places_split_{os.getpid()}.sqlite"
+            try:
+                shutil.copy2(db, tmp_db)
+                conn = sqlite3.connect(tmp_db)
+                cur = conn.cursor()
+                cur.execute("""
+                    SELECT p.url, p.title, v.visit_date/1000000
+                    FROM moz_historyvisits v JOIN moz_places p ON v.place_id = p.id
+                    WHERE p.url LIKE '%netflix.com/watch/%'
+                      AND v.visit_date/1000000 >= ?
+                    ORDER BY v.visit_date ASC;
+                """, (start_epoch - 180,))
+                rows = cur.fetchall()
+                conn.close()
+                if len(rows) >= 2:
+                    cuts = []
+                    base_epoch = rows[0][2]
+                    for r in rows[1:]:
+                        offset = r[2] - base_epoch
+                        cuts.append(offset)
+                    return cuts
+            except Exception:
+                pass
+            finally:
+                if os.path.exists(tmp_db):
+                    os.remove(tmp_db)
+    return []
+
+def refine_cut(video_path, rough_timestamp, search_window=60):
+    """Finds the exact transition boundary near a rough timestamp."""
+    start_search = max(0, rough_timestamp - search_window)
+    end_search = rough_timestamp + search_window
+
+    silences = scan_silences(video_path, noise_db="-30dB", min_silence=1.2, start_time=start_search, end_time=end_search)
+    blacks = scan_black_frames(video_path, start_search, end_search, min_duration=0.3)
+
+    # Check for overlap between silence and black frame
+    for s_start, s_end, s_dur in silences:
+        for b_start, b_end, b_dur in blacks:
+            if max(s_start, b_start) <= min(s_end, b_end):
+                return (max(s_start, b_start) + min(s_end, b_end)) / 2
+
+    # Fallback to strongest silence
+    if silences:
+        best_silence = min(silences, key=lambda s: abs((s[0] + s[2]/2) - rough_timestamp) - (s[2] * 2))
+        return best_silence[0] + (best_silence[2] / 2)
+
+    # Fallback to black frame
+    if blacks:
+        best_black = min(blacks, key=lambda b: abs((b[0] + b[2]/2) - rough_timestamp))
+        return best_black[0] + (best_black[2] / 2)
+
+    return rough_timestamp
+
+def calculate_cuts(video_path, total_dur, num_episodes=None, min_duration_sec=1200, method="auto"):
+    # 1. Try browser streaming history correlation
+    if method in ("auto", "history"):
+        history_cuts = detect_from_browser_history(video_path)
+        if history_cuts and (num_episodes is None or len(history_cuts) == num_episodes - 1):
+            print_step(f"Correlated with browser streaming history ({len(history_cuts)+1} episodes detected)...")
+            refined = []
+            for h in history_cuts:
+                if 0 < h < total_dur:
+                    refined.append(refine_cut(video_path, h))
+            if len(refined) >= 1:
+                return sorted(refined)
+
+    # 2. Audio silence scan
+    print_step("Scanning audio track for episode transitions (silence >= 1.5s, -30dB)...")
+    silences = scan_silences(video_path, noise_db="-30dB", min_silence=1.5)
+    print(f"  Found {len(silences)} quiet segments across video.")
+
+    cuts = []
+    if num_episodes is not None and num_episodes > 1:
+        import itertools
+        import statistics
+
+        expected_len = total_dur / num_episodes
+        window = min(expected_len * 0.45, max(1200.0, expected_len * 0.3))
+
+        candidate_lists = []
+        for ep_idx in range(1, num_episodes):
+            target = ep_idx * expected_len
+            cands = [s for s in silences if (target - window) <= s[0] <= (target + window)]
+            if not cands:
+                cands = [(target, target, 0.0)]
+            # Take top 8 longest silences for each boundary
+            cl_sorted = sorted(cands, key=lambda s: s[2], reverse=True)[:8]
+            candidate_lists.append(cl_sorted)
+
+        best_combo = None
+        best_score = float('inf')
+
+        for combo in itertools.product(*candidate_lists):
+            cuts_t = [s[0] + s[2] / 2 for s in combo]
+            valid = True
+            prev = 0.0
+            lens = []
+            for c in cuts_t:
+                l = c - prev
+                if l < min_duration_sec * 0.4:
+                    valid = False
+                    break
+                lens.append(l)
+                prev = c
+            l_last = total_dur - prev
+            if l_last < min_duration_sec * 0.4:
+                valid = False
+            lens.append(l_last)
+
+            if not valid:
+                continue
+
+            stdev = statistics.stdev(lens) if len(lens) > 1 else 0
+            total_silence = sum(s[2] for s in combo)
+            score = stdev - (total_silence * 120.0)
+            if score < best_score:
+                best_score = score
+                best_combo = cuts_t
+
+        if best_combo:
+            for c in best_combo:
+                cuts.append(refine_cut(video_path, c, search_window=15))
+        else:
+            for ep_idx in range(1, num_episodes):
+                cuts.append(ep_idx * expected_len)
+    else:
+        last_cut = 0.0
+        for s_start, s_end, s_dur in silences:
+            if (s_start - last_cut) >= min_duration_sec and (total_dur - s_end) >= (min_duration_sec * 0.5):
+                cut_point = s_start + s_dur / 2
+                cuts.append(cut_point)
+                last_cut = cut_point
+
+    return sorted(cuts)
+
+def split_video(input_path, cuts, output_dir, prefix, output_ext="mkv"):
+    os.makedirs(output_dir, exist_ok=True)
+    total_dur = get_video_duration(input_path)
+
+    segments = []
+    prev = 0.0
+    for i, c in enumerate(cuts, 1):
+        segments.append((i, prev, c))
+        prev = c
+    segments.append((len(cuts) + 1, prev, total_dur))
+
+    print_step(f"Splitting '{os.path.basename(input_path)}' into {len(segments)} episodes:")
+    for ep_num, st, en in segments:
+        dur = en - st
+        print(f"  Episode {ep_num:02d}: {format_time(st)} -> {format_time(en)} ({format_time(dur)})")
+
+    print()
+    t_start = time.time()
+    results = []
+
+    for ep_num, st, en in segments:
+        dur = en - st
+        filename = f"{prefix}{ep_num:02d}.{output_ext}"
+        out_path = os.path.join(output_dir, filename)
+
+        print_step(f"[{ep_num:02d}/{len(segments):02d}] Exporting '{filename}' ({format_time(dur)})...")
+        t0 = time.time()
+
+        cmd = [
+            "ffmpeg", "-y",
+            "-ss", f"{st:.3f}",
+            "-to", f"{en:.3f}",
+            "-i", input_path,
+            "-c", "copy"
+        ]
+        if output_ext.lower() == "mp4":
+            cmd.extend(["-movflags", "+faststart"])
+        cmd.append(out_path)
+
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if res.returncode != 0:
+            print_err(f"FFmpeg failed on episode {ep_num}:\n{res.stderr[-400:]}")
+            sys.exit(res.returncode)
+
+        elapsed = time.time() - t0
+        size_mb = os.path.getsize(out_path) / (1024 * 1024)
+        print(f"    Finished in {elapsed:.1f}s (Size: {size_mb:.1f} MB)")
+        results.append((out_path, dur, size_mb))
+
+    total_elapsed = time.time() - t_start
+    total_size_mb = sum(r[2] for r in results)
+    print_success(f"All {len(segments)} episodes exported successfully in {total_elapsed:.1f}s!")
+    print(f"  Folder     : {output_dir}")
+    print(f"  Total Size : {total_size_mb/1024:.2f} GB")
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Split a long TV series recording into individual episodes.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""Examples:
+  split-episodes "The Romantics (2023).mkv" -n 4
+  split-episodes "Show.mp4" --min-duration 25 --dry-run
+"""
+    )
+    parser.add_argument("video", help="Path to video file (.mp4, .mkv, etc.)")
+    parser.add_argument("-n", "--num-episodes", type=int, default=None, help="Expected number of episodes (optional)")
+    parser.add_argument("-m", "--min-duration", type=float, default=20.0, help="Minimum episode duration in minutes (default: 20m)")
+    parser.add_argument("-o", "--output-dir", default=None, help="Override output folder (default: same name as video file)")
+    parser.add_argument("-p", "--prefix", default=None, help="Filename prefix (default: '<Title> - Episode ')")
+    parser.add_argument("--format", choices=["mkv", "mp4", "same"], default="same", help="Output container format (default: same as input)")
+    parser.add_argument("--method", choices=["auto", "silence", "history"], default="auto", help="Detection method (default: auto)")
+    parser.add_argument("-d", "--dry-run", action="store_true", help="Preview detected episodes without exporting files")
+    parser.add_argument("-y", "--yes", action="store_true", help="Proceed without confirmation prompt")
+
+    args = parser.parse_args()
+
+    if not os.path.exists(args.video):
+        print_err(f"File not found: '{args.video}'")
+        sys.exit(1)
+
+    video_path = os.path.abspath(args.video)
+    base_name = Path(video_path).stem
+    ext = Path(video_path).suffix.lstrip(".").lower()
+    out_ext = ext if args.format == "same" else args.format
+
+    total_dur = get_video_duration(video_path)
+    print_step(f"Analyzing '{os.path.basename(video_path)}'")
+    print(f"  Total Duration: {format_time(total_dur)} ({total_dur:.1f}s)")
+
+    min_dur_sec = args.min_duration * 60.0
+    cuts = calculate_cuts(video_path, total_dur, num_episodes=args.num_episodes, min_duration_sec=min_dur_sec, method=args.method)
+
+    if not cuts:
+        print_warn("No episode transition boundaries found. Try lowering --min-duration or specifying -n.")
+        sys.exit(0)
+
+    print()
+    print_step(f"Detected {len(cuts) + 1} Episodes:")
+    prev = 0.0
+    for idx, c in enumerate(cuts, 1):
+        dur = c - prev
+        print(f"  Episode {idx:02d}: {format_time(prev)} -> {format_time(c)} ({format_time(dur)})")
+        prev = c
+    last_dur = total_dur - prev
+    print(f"  Episode {len(cuts)+1:02d}: {format_time(prev)} -> {format_time(total_dur)} ({format_time(last_dur)})")
+    print()
+
+    if args.dry_run:
+        print_success("Dry run complete. No files were written.")
+        sys.exit(0)
+
+    # Output directory defaults to the exact same name as the video file (without extension)
+    output_dir = args.output_dir or os.path.join(os.path.dirname(video_path), base_name)
+    prefix = args.prefix or f"{base_name} - Episode "
+
+    if not args.yes:
+        try:
+            choice = input(f"Proceed with lossless export to '{output_dir}'? [Y/n] ").strip().lower()
+            if choice and choice not in ("y", "yes"):
+                print("Cancelled by user.")
+                sys.exit(0)
+        except (KeyboardInterrupt, EOFError):
+            print("\nCancelled.")
+            sys.exit(0)
+
+    split_video(video_path, cuts, output_dir, prefix, output_ext=out_ext)
+
+if __name__ == "__main__":
+    main()

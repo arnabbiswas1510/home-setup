@@ -1,0 +1,232 @@
+#!/usr/bin/env bash
+#
+# find-bloat - Smart scanner for bloated video files and oversized archives/ISOs.
+#
+
+set -eo pipefail
+
+# Default settings
+TARGET_DIR="."
+BITRATE_THRESH_MBPS="3.5"
+ARCHIVE_THRESH_GB="1.0"
+JOBS="$(nproc 2>/dev/null || echo 4)"
+SCAN_VIDEOS=1
+SCAN_ARCHIVES=1
+
+# Color support
+if [ -t 1 ]; then
+    BOLD="$(printf '\033[1m')"
+    CYAN="$(printf '\033[36m')"
+    YELLOW="$(printf '\033[33m')"
+    GREEN="$(printf '\033[32m')"
+    RED="$(printf '\033[31m')"
+    RESET="$(printf '\033[0m')"
+else
+    BOLD=""
+    CYAN=""
+    YELLOW=""
+    GREEN=""
+    RED=""
+    RESET=""
+fi
+
+usage() {
+    cat << EOF
+${BOLD}find-bloat${RESET} - Identify bloated videos and oversized archives/ISOs
+
+Usage:
+  $(basename "$0") [OPTIONS] [DIRECTORY]
+
+Arguments:
+  DIRECTORY               Target path to scan (default: current working directory)
+
+Options:
+  -b, --bitrate MBPS      Video bitrate threshold in Mbps (default: 3.5)
+                          Calculated as (file_size * 8) / duration to adjust for runtime.
+  -a, --archive-size GB   Minimum size in GB to report archives/ISOs (default: 1.0)
+  -j, --jobs N            Parallel probe workers (default: all CPU cores)
+  -v, --videos-only       Scan only video files
+  -z, --archives-only     Scan only archive / disk image files
+  -h, --help              Show this help message
+
+Examples:
+  find-bloat ~/Videos
+  find-bloat -b 4.0 -a 2.0 /mnt/media
+  find-bloat -v -b 3.0 .
+EOF
+    exit 0
+}
+
+# Parse options
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -b|--bitrate)
+            BITRATE_THRESH_MBPS="$2"
+            shift 2
+            ;;
+        -a|--archive-size)
+            ARCHIVE_THRESH_GB="$2"
+            shift 2
+            ;;
+        -j|--jobs)
+            JOBS="$2"
+            shift 2
+            ;;
+        -v|--videos-only)
+            SCAN_ARCHIVES=0
+            shift
+            ;;
+        -z|--archives-only)
+            SCAN_VIDEOS=0
+            shift
+            ;;
+        -h|--help)
+            usage
+            ;;
+        -*)
+            echo -e "${RED}Error: Unknown option '$1'${RESET}" >&2
+            usage
+            ;;
+        *)
+            TARGET_DIR="$1"
+            shift
+            ;;
+    esac
+done
+
+# Check dependencies
+for cmd in ffprobe jq awk numfmt; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo -e "${RED}Error: Required command '$cmd' is not installed.${RESET}" >&2
+        echo "Please install it via your package manager (e.g., sudo pacman -S ffmpeg jq coreutils gawk)." >&2
+        exit 1
+    fi
+done
+
+if [ ! -d "$TARGET_DIR" ]; then
+    echo -e "${RED}Error: Directory '$TARGET_DIR' does not exist.${RESET}" >&2
+    exit 1
+fi
+
+TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
+export BITRATE_THRESH_MBPS
+
+# -----------------------------------------------------------------------------
+# Worker function: Probes single video using ffprobe + jq
+# -----------------------------------------------------------------------------
+probe_video() {
+    local file="$1"
+
+    local tsv
+    tsv=$(ffprobe -v error \
+      -show_entries stream=codec_type,codec_name,width,height,channels \
+      -show_entries format=duration,size,bit_rate \
+      -of json "$file" 2>/dev/null | jq -r '
+      .format as $f |
+      ([.streams[]? | select(.codec_type == "video")] | first) as $v |
+      ([.streams[]? | select(.codec_type == "audio")] | first // {channels: 0}) as $a |
+      [($v.width // 0), ($v.height // 0), ($v.codec_name // "unknown"), ($a.channels // 0), ($f.duration // 0), ($f.size // 0), ($f.bit_rate // 0)] | @tsv
+    ' 2>/dev/null) || return 0
+
+    [ -z "$tsv" ] && return 0
+
+    local width height vcodec channels duration size bitrate
+    IFS=$'\t' read -r width height vcodec channels duration size bitrate <<< "$tsv"
+
+    # Disk size fallback
+    if [ -z "$size" ] || [ "$size" = "0" ] || [ "$size" = "null" ]; then
+        size=$(stat -c%s "$file" 2>/dev/null || echo 0)
+    fi
+
+    # Bitrate calculation if missing in container header
+    if [ -z "$bitrate" ] || [ "$bitrate" = "0" ] || [ "$bitrate" = "null" ]; then
+        if [ -n "$duration" ] && awk -v d="$duration" 'BEGIN { exit !(d > 0) }'; then
+            bitrate=$(awk -v s="$size" -v d="$duration" 'BEGIN { printf "%.0f", (s * 8 / d) }')
+        else
+            bitrate=0
+        fi
+    fi
+
+    local mbps
+    mbps=$(awk -v b="$bitrate" 'BEGIN { printf "%.2f", (b / 1000000) }')
+
+    local is_bloat
+    is_bloat=$(awk -v m="$mbps" -v t="$BITRATE_THRESH_MBPS" 'BEGIN { print (m >= t) ? 1 : 0 }')
+
+    if [ "$is_bloat" -eq 1 ]; then
+        local size_human dur_str audio_str details
+        size_human=$(numfmt --to=iec --format="%.1f" "$size" 2>/dev/null || echo "$size")
+        dur_str=$(awk -v d="$duration" 'BEGIN {
+            h = int(d / 3600);
+            m = int((d % 3600) / 60);
+            s = int(d % 60);
+            if (h > 0) printf "%dh %02dm", h, m;
+            else printf "%02dm %02ds", m, s;
+        }')
+
+        audio_str="${channels}.0ch"
+        [ "$channels" = "6" ] && audio_str="5.1ch"
+        [ "$channels" = "8" ] && audio_str="7.1ch"
+
+        details="${width}x${height} ${vcodec} ${audio_str}"
+        # Numeric prefix for stable sorting:
+        printf "%012.0f\t%-10s | %-8s | %-9s | %-24s | %s\n" "$bitrate" "${mbps} Mbps" "$size_human" "$dur_str" "$details" "$file"
+    fi
+}
+export -f probe_video
+
+# -----------------------------------------------------------------------------
+# Section 1: Video Scan
+# -----------------------------------------------------------------------------
+if [ "$SCAN_VIDEOS" -eq 1 ]; then
+    echo -e "${BOLD}${CYAN}===============================================================================================================${RESET}"
+    echo -e "${BOLD}${CYAN} 🎬 BLOATED VIDEO FILES (Bitrate >= ${BITRATE_THRESH_MBPS} Mbps) in: ${TARGET_DIR}${RESET}"
+    echo -e "${BOLD}${CYAN}===============================================================================================================${RESET}"
+    printf "${BOLD}%-10s | %-8s | %-9s | %-24s | %s${RESET}\n" "BITRATE" "SIZE" "DURATION" "DETAILS" "FILE"
+    echo "---------------------------------------------------------------------------------------------------------------"
+
+    video_results=$(find "$TARGET_DIR" -type f \( \
+        -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.m4v" -o -iname "*.avi" -o \
+        -iname "*.mov" -o -iname "*.wmv" -o -iname "*.flv" -o -iname "*.ts" -o \
+        -iname "*.m2ts" -o -iname "*.webm" \
+    \) -print0 | xargs -0 -n 1 -P "$JOBS" bash -c 'probe_video "$1"' _ | \
+    sort -rn -k1,1 | cut -f2- || true)
+
+    if [ -n "$video_results" ]; then
+        echo "$video_results"
+    else
+        echo "No video files found exceeding ${BITRATE_THRESH_MBPS} Mbps."
+    fi
+    echo ""
+fi
+
+# -----------------------------------------------------------------------------
+# Section 2: Archive & ISO Scan
+# -----------------------------------------------------------------------------
+if [ "$SCAN_ARCHIVES" -eq 1 ]; then
+    ARCHIVE_THRESH_BYTES=$(awk -v gb="$ARCHIVE_THRESH_GB" 'BEGIN { printf "%.0f", gb * 1024 * 1024 * 1024 }')
+
+    echo -e "${BOLD}${YELLOW}===============================================================================================================${RESET}"
+    echo -e "${BOLD}${YELLOW} 📦 OVERSIZED ARCHIVES & DISC IMAGES (Size >= ${ARCHIVE_THRESH_GB} GB) in: ${TARGET_DIR}${RESET}"
+    echo -e "${BOLD}${YELLOW}===============================================================================================================${RESET}"
+    printf "${BOLD}%-8s | %-16s | %s${RESET}\n" "SIZE" "TYPE" "FILE"
+    echo "---------------------------------------------------------------------------------------------------------------"
+
+    archive_results=$(find "$TARGET_DIR" -type f \( \
+        -iname "*.iso" -o -iname "*.img" -o -iname "*.zip" -o -iname "*.7z" -o -iname "*.rar" -o \
+        -iname "*.tar" -o -iname "*.tar.gz" -o -iname "*.tgz" -o -iname "*.tar.bz2" -o \
+        -iname "*.tbz2" -o -iname "*.tar.xz" -o -iname "*.txz" -o -iname "*.tar.zst" \
+    \) -size +"${ARCHIVE_THRESH_BYTES}"c 2>/dev/null | while IFS= read -r file; do
+        size_bytes=$(stat -c%s "$file" 2>/dev/null || echo 0)
+        size_human=$(numfmt --to=iec --format="%.1f" "$size_bytes" 2>/dev/null || echo "$size_bytes")
+        ext="${file##*.}"
+        printf "%015d\t%-8s | %-16s | %s\n" "$size_bytes" "$size_human" ".${ext^^} Archive/Image" "$file"
+    done | sort -rn -k1,1 | cut -f2- || true)
+
+    if [ -n "$archive_results" ]; then
+        echo "$archive_results"
+    else
+        echo "No archives or disk images found exceeding ${ARCHIVE_THRESH_GB} GB."
+    fi
+    echo ""
+fi
